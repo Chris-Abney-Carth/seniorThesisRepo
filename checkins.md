@@ -1,8 +1,8 @@
-## Week 1 Summary (MM/DD/YYYY)
+## Week 1 Summary (9/15/2025)
 
 ### This week I worked on:
 
-[Your answer here]
+The basic of the Project, and Finding libraries to contibute to this.
 
 ### This week I learned:
 
