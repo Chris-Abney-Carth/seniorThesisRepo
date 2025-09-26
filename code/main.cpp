@@ -37,6 +37,7 @@ string namePlayer() {
             cout << "Invalid name. Please try again. (Names cannot contain numbers or symbols like !, @, #, and must be at least 1 to 20 characters long)." << endl;
         }
     }
+    return "ERR";
 }
 void readFile() {
     //setup for file
@@ -129,6 +130,7 @@ void readFile() {
     }
     readSavefile.close();
     if (pStoryFlag == 0) {
+        //cout << "DEBUG PLAYER NAME IS: " <<pName << endl;
         pName = namePlayer();
         pStoryFlag = 1;
     }

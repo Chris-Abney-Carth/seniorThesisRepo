@@ -6,23 +6,22 @@ The basic of the Project, and Finding libraries to contibute to this.
 
 ### This week I learned:
 
-[Your answer here]
+[Im an idot]
 
 ### My successes this week were:
 
-[Your answer here]
+[Starting this]
 
 ### The challenges I faced this week were:
 
-[Your answer here]
+[Actily talking ot people]
 
 ---
 
-## Week 2 Summary (MM/DD/YYYY)
+## Week 2 Summary (9/22/2025)
 ### This week I worked on:
 
-[Your answer here]
-
+Intergrating a file system
 ### This week I learned:
 
 [Your answer here]
