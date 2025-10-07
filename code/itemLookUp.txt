@@ -1,0 +1,7 @@
+0 001 BasicSword 10 0 3 0 0 0 2 0 0
+0 002 LeatherArmor 5 0 0 3 0 1 0 0 1
+0 003 LuckCoin 10 0 0 0 0 3 0 2 2
+0 004 SpeedPendate 10 0 0 0 3 1 0 0 3
+1 101 Bread 5 10 0
+1 102 MagicTruffle 5 0 10
+1 103 TruffleSandwitch 15 20 10
