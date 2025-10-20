@@ -21,5 +21,5 @@ class Item
         int equipType;
         int hpHeal;
         int mpHeal;
-
+        
 };

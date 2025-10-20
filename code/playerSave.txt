@@ -1,7 +1,9 @@
 pName Test
 pLevel 1
 pHP 10
+maxHP 10
 pMP 0
+maxMp 0
 pAttack 10
 pDefence 10
 pSpeed 5
@@ -12,3 +14,4 @@ pExp 0
 pGold 0
 pStoryFlag 0
 pSaveSpot 0
+pInven 101
