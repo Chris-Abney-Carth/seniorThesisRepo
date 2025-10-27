@@ -1,6 +1,3 @@
-#ifndef UNICODE
-#define UNICODE
-#endif 
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -9,81 +6,7 @@
 #include <tuple>
 #include <cctype>
 #include <conio.h>
-#include <windows.h>
 #include "item.cpp"
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow)
-{
-
-    // Register the window class.
-    const wchar_t CLASS_NAME[]  = L"Sample Window Class";
-    
-    WNDCLASS wc = { };
-
-    wc.lpfnWndProc   = WindowProc;
-    wc.hInstance     = hInstance;
-    wc.lpszClassName = CLASS_NAME;
-
-    RegisterClass(&wc);
-
-    // Create the window.
-
-    HWND hwnd = CreateWindowEx(
-        0,                              // Optional window styles.
-        CLASS_NAME,                     // Window class
-        L"Learn to Program Windows",    // Window text
-        WS_OVERLAPPEDWINDOW,            // Window style
-
-        // Size and position
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-
-        NULL,       // Parent window    
-        NULL,       // Menu
-        hInstance,  // Instance handle
-        NULL        // Additional application data
-        );
-
-    if (hwnd == NULL)
-    {
-        return 0;
-    }
-
-    ShowWindow(hwnd, nCmdShow);
-
-    // Run the message loop.
-    MSG msg = { };
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    return 0;
-}
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-    switch (uMsg)
-    {
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
-
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hwnd, &ps);
-
-            // All painting occurs here, between BeginPaint and EndPaint.
-            FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
-            EndPaint(hwnd, &ps);
-        }
-        return 0;
-    }
-
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
 using namespace std;
 string pName = "";
 int pLevel = 1;
@@ -112,6 +35,7 @@ int pMiscId = 0;
 //Class for items.
 vector<Item*> pItems;
 vector<Item*> iLookUp;
+void saveFile();
 void setUpLookup(){
     //setup for lookUp Table
     int itemID = 000;
@@ -193,9 +117,6 @@ void setUpLookup(){
         breakDownLine.clear();
         levelLineIndex += 1;
     }
-}
-void eLookTable(int itemID){
-    
 }
 bool is_number(const string& s)
 {
@@ -472,7 +393,6 @@ for (int i = 0; i < iLookUp.size(); i++){
     }
 }
 }
-
 void startChoices(){
     bool finishedChoosing = false;
     string pInput = "";
@@ -516,7 +436,7 @@ void startChoices(){
                     cin >> pInput;
                     if (pInput == "Y"){
                         cout << "\nSaving Game..." << endl;
-                        
+                        saveFile();
                     }
                     break;
                 }
@@ -530,6 +450,82 @@ void startChoices(){
 }
 void saveFile() {
     //Saving file setup.
+    string filename = "playerSave.txt";
+    ifstream inputFile(filename);
+    if (!inputFile.is_open()) {
+	    std::cerr << "Error opening file for reading." << std::endl;
+	    //return;
+    }
+    string line = "";
+    vector<std::string> lines;
+    while (getline(inputFile, line)) {
+        lines.push_back(line);
+    }
+    inputFile.close();
+    /**
+    pName Test
+    pLevel 1
+    pHP 10
+    maxHP 10
+    pMP 0
+    maxMp 0
+    pAttack 10
+    pDefence 10
+    pSpeed 5
+    pAgility 5
+    pGuts 5
+    pWits 5
+    pExp 0
+    pGold 0
+    pStoryFlag 0
+    pSaveSpot 0
+    pInven 101
+     */
+    string tempPlayerItems = "";
+    lines[0] = "pName " + pName;
+    lines[1] = "pLevel " + to_string(pLevel);
+
+    lines[2] = "pHP " + to_string(pHP);
+    lines[3] = "maxHP " + to_string(maxHP);
+
+    lines[4] = "pMP " + to_string(pMP);
+    lines[5] = "maxMP " + to_string(maxMP);
+
+    lines[6] = "pAttack " + to_string(pAttack);
+    lines[7] = "pDefence " + to_string(pDefense);
+
+    lines[8] = "pSpeed " + to_string(pSpeed);
+    lines[9] = "pAgility " + to_string(pAgility);
+
+    lines[10] = "pGuts " + to_string(pGuts);
+    lines[11] = "pWits " + to_string(pWits);
+
+    lines[12] = "pExp " + to_string(pExp);
+    lines[13] = "pGold " + to_string(pGold);
+
+    lines[14] = "pStoryFlag " + to_string(pStoryFlag);
+    lines[15] = "pSaveSpot " + to_string(pSaveSpot);
+    if (pItems.empty() == false){
+        for (int i = 0; i < pItems.size(); i++){
+            tempPlayerItems = tempPlayerItems + to_string(pItems[i]->itemId);
+            if (i != pItems.size()){
+                tempPlayerItems = tempPlayerItems + " ";
+            }
+        }
+    }
+    lines[16] = "pInven " + tempPlayerItems;
+
+    fstream saveFile(filename, ios::out);
+    if (saveFile.is_open()) {
+	    for (const std::string& updatedLine : lines) {
+		    saveFile << updatedLine << std::endl;
+	    }
+    }
+    else {
+	    cout << "Error Opening File! No changes will be saved." << endl;
+    }
+    saveFile.close();
+    
 
 }
 void readFile() {

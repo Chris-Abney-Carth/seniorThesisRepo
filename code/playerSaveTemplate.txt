@@ -1,9 +1,9 @@
-pName Chris
+pName Test
 pLevel 1
 pHP 10
 maxHP 10
 pMP 0
-maxMP 0
+maxMp 0
 pAttack 10
 pDefence 10
 pSpeed 5
@@ -11,7 +11,7 @@ pAgility 5
 pGuts 5
 pWits 5
 pExp 0
-pGold 5
-pStoryFlag 2
+pGold 0
+pStoryFlag 0
 pSaveSpot 0
-pInven 101 1 
+pInven 101
