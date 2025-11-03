@@ -36,10 +36,29 @@ Intergrating a file system
 
 ---
 
-## Week 3 Summary (MM/DD/YYYY)
+## Week 3 Summary (9/29/2025)
 ### This week I worked on:
 
+adding gui?
+
+### This week I learned:
+
 [Your answer here]
+
+### My successes this week were:
+
+[Your answer here]
+
+### The challenges I faced this week were:
+
+Getting gui things to work!
+
+---
+
+## Week 4 Summary (10/6/2025)
+### This week I worked on:
+
+Items and working on finding out how to add gui
 
 ### This week I learned:
 
@@ -55,10 +74,10 @@ Intergrating a file system
 
 ---
 
-## Week 4 Summary (MM/DD/YYYY)
+## Week 5 Summary (10/13/2025)
 ### This week I worked on:
 
-[Your answer here]
+Adding items
 
 ### This week I learned:
 
@@ -74,10 +93,10 @@ Intergrating a file system
 
 ---
 
-## Week 5 Summary (MM/DD/YYYY)
+## Week 6 Summary (10/20/2025)
 ### This week I worked on:
 
-[Your answer here]
+Wx widgets and working on items.
 
 ### This week I learned:
 
@@ -93,14 +112,14 @@ Intergrating a file system
 
 ---
 
-## Week 6 Summary (MM/DD/YYYY)
+## Week 7 Summary (10/27/2025)
 ### This week I worked on:
 
-[Your answer here]
+Adding ememies and workingon wxwidgets
 
 ### This week I learned:
 
-[Your answer here]
+Widgets are hard to add, but nervious.
 
 ### My successes this week were:
 
@@ -112,26 +131,7 @@ Intergrating a file system
 
 ---
 
-## Week 7 Summary (MM/DD/YYYY)
-### This week I worked on:
-
-[Your answer here]
-
-### This week I learned:
-
-[Your answer here]
-
-### My successes this week were:
-
-[Your answer here]
-
-### The challenges I faced this week were:
-
-[Your answer here]
-
----
-
-## Week 8 Summary (MM/DD/YYYY)
+## Week 8 Summary (11/3/2025)
 ### This week I worked on:
 
 [Your answer here]
