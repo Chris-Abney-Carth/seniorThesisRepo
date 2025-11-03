@@ -6,7 +6,8 @@
 #include <tuple>
 #include <cctype>
 #include <conio.h>
-#include "item.cpp"
+#include "item.h"
+#include "enemy.h"
 using namespace std;
 string pName = "";
 int pLevel = 1;
@@ -24,6 +25,7 @@ int pExp = 0;
 int pGold = 0;
 int pStoryFlag = 0;
 int pSaveSpot = 0;
+bool playerSpeedEffect = false;
 bool pWeaponEquiped = false;
 bool pBodyEquiped = false;
 bool pAccEquiped = false;
@@ -35,6 +37,7 @@ int pMiscId = 0;
 //Class for items.
 vector<Item*> pItems;
 vector<Item*> iLookUp;
+vector<Enemy*> enemyList;
 void saveFile();
 void setUpLookup(){
     //setup for lookUp Table
@@ -112,6 +115,58 @@ void setUpLookup(){
             cItem->mpHeal = mpHeal;
             iLookUp.push_back(cItem);
         }
+
+        ss.clear();
+        breakDownLine.clear();
+        levelLineIndex += 1;
+    }
+}
+void setUpEnenmyLookup(){
+    int enID = 0;
+    string enName = "";
+    int enHP = 0;
+    int enMP = 0;
+    int enAtk = 0;
+    int enDef = 0;
+    int enSpe = 0;
+    int enAgi = 0;
+    int enGut = 0;
+    int enWit = 0;
+    int enExp = 0;
+    int enGold = 0;
+    bool enAtkB = false;
+    bool enIce = false;
+    bool enFire = false;
+    int levelLineIndex = 0;
+    string filePath = "";
+    string word = "";
+    string levelLine = "";
+    string filename = "enemyLookUp.txt";
+    vector<string> breakDownLine;
+    ifstream readSavefile(filename);
+    while (getline(readSavefile, levelLine)) {
+        stringstream ss(levelLine);
+        while (!ss.eof()) {
+            ss >> word;
+            breakDownLine.push_back(word);
+        }
+        enID = stoi(breakDownLine[0]);
+        enName = breakDownLine[1];
+        enHP = stoi(breakDownLine[2]);
+        enMP = stoi(breakDownLine[3]);
+        enAtk = stoi(breakDownLine[4]);
+        enDef = stoi(breakDownLine[5]);
+        enSpe = stoi(breakDownLine[6]);
+        enAgi = stoi(breakDownLine[7]);
+        enGut = stoi(breakDownLine[8]);
+        enWit = stoi(breakDownLine[9]);
+        enExp = stoi(breakDownLine[10]);
+        enGold = stoi(breakDownLine[11]);
+        enAtkB = stoi(breakDownLine[12]);
+        enIce = stoi(breakDownLine[13]);
+        enFire = stoi(breakDownLine[14]);
+        Enemy* newEnemy = new Enemy(enID, enName, enHP, enMP, enAtk, enDef, enSpe, enAgi, enGut, enWit, enExp, enGold, enAtkB, enIce, enFire);
+        enemyList.push_back(newEnemy);
 
         ss.clear();
         breakDownLine.clear();

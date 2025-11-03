@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ITEM
+#define ITEM
 #include <iostream>
 #include <string>
 using namespace std;
@@ -24,3 +25,4 @@ class Item
         int mpHeal;
         
 };
+#endif
