@@ -1,4 +1,4 @@
-
+#pragma once
 #ifndef ENEMY
 #define ENEMY
 #include <iostream>
@@ -8,6 +8,7 @@ using namespace std;
 class Enemy
 {
 public:
+    Enemy();
     Enemy(int id, string name, int hp, int mp, int atk, int def, int spe, int agi, int gut, int wit, int exp, int gold, bool atkB, bool ice, bool fire);
     string enName;
     int enID;
