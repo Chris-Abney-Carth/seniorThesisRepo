@@ -1,0 +1,16 @@
+﻿  App.cpp
+  Enemy.cpp
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Enemy.cpp(97,34): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Enemy.cpp(98,46): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Enemy.cpp(101,34): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Enemy.cpp(102,46): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Enemy.cpp(150,31): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Enemy.cpp(151,42): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+  Main.txt
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Main.txt(560,50): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Main.txt(561,62): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Main.txt(563,50): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\FirstWidgetProject\Main.txt(564,62): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+  MainFrame.cpp
+  Generating Code...
+  FirstWidgetProject.vcxproj -> C:\GitProjects\seniorThesisRepo\seniorThesisRepo\code\x64\Debug\BitQuest.exe
