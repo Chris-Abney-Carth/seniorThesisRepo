@@ -35,6 +35,8 @@ int pWeaponId = 0;
 int pBodyId = 0;
 int pAccId = 0;
 int pMiscId = 0;
+int numOEn = 0;
+bool inBattle = false;
 //Class for items.
 vector<Item*> pItems;
 vector<Item*> iLookUp;
@@ -48,6 +50,7 @@ int getRandom(int rMin, int rMax){
 }
 int statBoost(int gRate, int level, int stat, int rand){
     int statGain = ((gRate*level)-((stat-2)*10))*rand/50;
+    return statGain;
 }
 void saveFile();
 void levelUP(){
@@ -243,6 +246,7 @@ void setUpEnenmyLookup(){
         enFire = stoi(breakDownLine[14]);
         Enemy* newEnemy = new Enemy(enID, enName, enHP, enMP, enAtk, enDef, enSpe, enAgi, enGut, enWit, enExp, enGold, enAtkB, enIce, enFire);
         enemyList.push_back(newEnemy);
+        numOEn += 1;
 
         ss.clear();
         breakDownLine.clear();
@@ -365,11 +369,226 @@ void playerInventory(){
     
     
 }
+void battleInventory(bool pTurn){
+    bool done = false;
+    string userInput = "";
+    int choiceInt = 0;
+    while (done == false){
+        if (pItems.size() == 0){
+            cout << "No Items" << endl;
+        }
+        else if (pItems.size() > 0){
+            for (int i = 0; i < pItems.size(); i++){
+                if (pItems[i]->type == 0){
+                    if (pItems[i]->equiped == false){
+                        cout << i <<" "<<pItems[i]->name << " [ ]" << endl;
+                    }
+                    else if (pItems[i]->equiped == true){
+                        cout << i <<" "<< pItems[i]->name << " [E]" << endl;
+                    }
+                } else if (pItems[i]->type == 1){
+                    cout << i <<" "<< pItems[i]->name << endl;
+                }
+            }
+        }
+        cout << "You can type the number to use an item or equip it.\nUseing or equiping an item will end your turn.\nType Exit to exit inventory." << endl;
+        cin >> userInput;
+        if (is_number(userInput) == true){
+            choiceInt = stoi(userInput);
+            if (choiceInt > pItems.size()){
+                cout << "Not a valid item" << endl;
+            }
+            else if (choiceInt <= pItems.size() && choiceInt >= 0){
+                if (pItems[choiceInt]->type == 0){
+                    if (pItems[choiceInt]->equiped == false){
+                        if (pItems[choiceInt]->equipType == 0){
+                            if (pWeaponEquiped == false){
+                                pWeaponEquiped = true;
+                            }
+                            pWeaponId = pItems[choiceInt]->itemId;
+                        }
+                        if (pItems[choiceInt]->equipType == 1){
+                            if (pBodyEquiped == false){
+                                pBodyEquiped = true;
+                            }
+                            pBodyId = pItems[choiceInt]->itemId;
+                        }
+                        if (pItems[choiceInt]->equipType == 2){
+                            if (pAccEquiped == false){
+                                pAccEquiped = true;
+                            }
+                            pAccId = pItems[choiceInt]->itemId;
+                        }
+                        if (pItems[choiceInt]->equipType == 3){
+                            if (pMiscEquiped == false){
+                                pMiscEquiped = true;
+                            }
+                            pMiscId = pItems[choiceInt]->itemId;
+                        }
+                        pItems[choiceInt]->equiped = true;
+                    } else {
+                        if (pItems[choiceInt]->equipType == 0){
+                            if (pWeaponEquiped == true){
+                                pWeaponEquiped = false;
+                            }
+                            pWeaponId = 0;
+                        }
+                        if (pItems[choiceInt]->equipType == 1){
+                            if (pBodyEquiped == true){
+                                pBodyEquiped = false;
+                            }
+                            pBodyId = 0;
+                        }
+                        if (pItems[choiceInt]->equipType == 2){
+                            if (pAccEquiped == true){
+                                pAccEquiped = false;
+                            }
+                            pAccId = 0;
+                        }
+                        if (pItems[choiceInt]->equipType == 3){
+                            if (pMiscEquiped == true){
+                                pMiscEquiped = false;
+                            }
+                            pMiscId = 0;
+                        }
+                        pItems[choiceInt]->equiped = false;
+                    }
+                } else if (pItems[choiceInt]->type == 1){
+                    pHP += pItems[choiceInt]->hpHeal;
+                    if (pHP > maxHP){
+                        pHP = maxHP;
+                        cout << "HP Maxed out" << endl;
+                    }else{
+                        cout << "Healed " << pItems[choiceInt]->hpHeal << " HP!" << endl;
+                    }
+                    pMP += pItems[choiceInt]->mpHeal;
+                    if (pMP > maxMP){
+                        pMP = maxMP;
+                        cout << "MP Maxed out" << endl;
+                    }else{
+                        cout << "Recovered " << pItems[choiceInt]->mpHeal << " MP!" << endl;
+                    }
+                    pItems.erase(pItems.begin()+choiceInt);
+                }
+                done = true;
+                pTurn = false;
+            }
+        }
+        if (userInput == "Exit"){
+            done = true;
+            pTurn = true;
+        }
+    }
+    
+    
+}
 void waitForEnter() {
     cout << "Press Enter to continue..." << endl;
     getch(); // Wait for the Enter key
 
     
+}
+bool pHit(bool enSlowStat, bool pSlowStat, int enAgi, int pAgil){
+
+    int enSlow = 1;
+    int pSlow = 1;
+    if (enSlowStat == true){
+        enSlow = 2;
+    }
+    if (pSlowStat == true){
+        pSlow = 2;
+    }
+    int chance = (2*(pAgil/pSlow)-(enAgi/enSlow));
+
+    int hitValue = getRandom(1,100);
+    
+    if (hitValue <= chance){
+        return true;
+    }else{
+        return false;
+    }
+}
+bool pCrit(){
+    int baseCritChance = 25;
+    int critChance = 0;
+    if (baseCritChance >= pGuts){
+        critChance = baseCritChance;
+    } else {
+        critChance = pGuts;
+    }
+    int critRandom = getRandom(1, 500);
+    if (critRandom <= critChance){
+        return true;
+    }else{
+        return false;
+    }
+}
+void battleTime(){
+    bool pTurn = false;
+    string playerInput = "";
+    bool battleDone = false;
+    int ranEn = getRandom(0,(numOEn-1));
+    Enemy* battleEn = enemyList[ranEn];
+    cout << battleEn->enName << " approaches!" << endl;
+    if (pSpeed > battleEn->enSpe){
+        pTurn = true; 
+    }
+    while (battleEn->enHP != 0 || pHP != 0 || battleDone != true){
+        if (pTurn == true){
+            cout << "What do you do? Type A for attack, I for item, R for run, and M for magic(magic not working!)" << endl;
+            cin >> playerInput;
+            if (playerInput == "A"){
+                cout << pName << " attacks!" << endl;
+                if (pCrit() == true){
+                    int damageDelt = (4*pAttack - battleEn->enDef);
+                    cout << "SMASH! You hit " << battleEn << " for " << damageDelt << " damage!" << endl;
+                    battleEn->enHP -= damageDelt;
+                    if (battleEn->enHP < 0){
+                        battleEn->enHP = 0;
+                    }
+                }else {
+                    if (pHit(battleEn->enSlowStat, playerSpeedEffect, battleEn->enAgi, pAgility) == false){
+                    cout << "Miss..." << endl;
+                    } else {
+                        int baseDamageDelt = (battleEn->enDef - pAttack);
+                        if (baseDamageDelt <= 0){
+                            cout << "Your attack could not get through!" << endl;
+                        } else {
+                            int randomDam = getRandom(1,4);
+                            int damageToAdd = 0;
+                            if (randomDam <= 2){
+                                float lessDamage = baseDamageDelt * 0.25;
+                                damageToAdd = baseDamageDelt - round(lessDamage);
+                            } else {
+                                float moreDamage = baseDamageDelt * 0.25;
+                                damageToAdd = baseDamageDelt + round(moreDamage);
+                            }
+                            cout << "You hit " << battleEn->enName << " for " << damageToAdd << " damage!" << endl;
+                            battleEn->enHP -= damageToAdd;
+                            if (battleEn->enHP < 0){
+                                battleEn->enHP = 0;
+                            }
+                        }
+                    }
+                }
+                
+                pTurn = false;
+            } else if (playerInput == "I"){
+                battleInventory(pTurn);
+            } else if (playerInput == "M"){
+                cout << "Not implimented yet!" << endl;
+            } else if (playerInput == "R"){
+                cout << "You Ran!";
+                battleDone = true;
+            }
+        } else if (pTurn == false){
+            cout << "Enemy just stood there for now..." << endl;
+            pTurn = true;
+        }
+    }
+    
+    
+
 }
 bool isValidName(string& playName) {
     //reject for certan Characts
@@ -765,6 +984,7 @@ int main() {
     waitForEnter();
     cout << "Building GAME!" << endl;
     setUpLookup();
+    setUpEnenmyLookup();
     readFile();
     cout << "After File" << endl;
     startChoices();

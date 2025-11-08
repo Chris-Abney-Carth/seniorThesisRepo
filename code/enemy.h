@@ -1,4 +1,3 @@
-
 #ifndef ENEMY
 #define ENEMY
 #include <iostream>
@@ -27,6 +26,7 @@ public:
     bool useAtkB;
     bool useIce;
     bool useFire;
+    
 
 private:
     bool hit(int pAgil, bool pSlowStat);
