@@ -2,12 +2,17 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <random>
+#include <fstream>
+#include "Item.h"
 using namespace std;
 
 
 class Player
 {
 public:
+	Player();
+	Player(string name, int level, int HP, int mHP, int MP, int mMP, int atk, int def, int spe, int agi, int gut, int wit, int exp, int gold, int storyFlag, int saveSpot, int weaponID, int bodyID, int accID, int miscID);
 	string pName = "";
 	int pLevel = 1;
 	int pHP = 10;
@@ -33,5 +38,11 @@ public:
 	int pBodyId = 0;
 	int pAccId = 0;
 	int pMiscId = 0;
+private:
+	int getRandom(int rMin, int rMax);
+	int statBoost(int gRate, int level, int stat, int rand);
+	void levelUP();
+	bool pHit(bool enSlowStat, bool pSlowStat, int enAgi, int pAgil);
+	bool pCrit();
 };
 

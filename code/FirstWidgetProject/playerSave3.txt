@@ -15,3 +15,7 @@ pGold 0
 pStoryFlag 0
 pSaveSpot 0
 pInven 101
+pWeaponId 0
+pBodyId 0
+pAccId 0
+pMiscId 0

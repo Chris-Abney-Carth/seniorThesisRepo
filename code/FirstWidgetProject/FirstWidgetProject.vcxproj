@@ -32,6 +32,14 @@
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="Player.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="enemyLookUp.txt" />
+    <Text Include="itemLookUp.txt" />
+    <Text Include="playerSave1.txt" />
+    <Text Include="playerSave2.txt" />
+    <Text Include="playerSave3.txt" />
+    <Text Include="playerSaveTemplate.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

@@ -48,4 +48,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="playerSave1.txt" />
+    <Text Include="playerSave2.txt" />
+    <Text Include="playerSave3.txt" />
+    <Text Include="playerSaveTemplate.txt" />
+    <Text Include="enemyLookUp.txt" />
+    <Text Include="itemLookUp.txt" />
+  </ItemGroup>
 </Project>
