@@ -4,9 +4,8 @@
 #include <string>
 using namespace std;
 
-class Item
+struct Item
 {
-public:
     int itemId;
     string name;
     //Type indicates if it is a consumable or equipment 0 is equip, 1 is consume. int so if more items are needed

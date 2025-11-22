@@ -25,7 +25,10 @@ enum {
     ID_PANEL_A = 1001,
     ID_PANEL_B,
     ID_PANEL_C,
-    ID_PANEL_D
+    ID_PANEL_D,
+    ID_PANEL_E,
+    ID_PANEL_F,
+    ID_PANEL_G
 };
 
 MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
@@ -68,6 +71,18 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     choicePanel->SetBackgroundColour(*wxBLACK);
     choicePanel->Hide();
 
+    menuPanel = new wxPanel(this, ID_PANEL_E);
+    menuPanel->SetBackgroundColour(*wxBLACK);
+    menuPanel->Hide();
+    
+    inventoryPanel = new wxPanel(this, ID_PANEL_F);
+    inventoryPanel->SetBackgroundColour(*wxBLACK);
+    inventoryPanel->Hide();
+
+    statPanel = new wxPanel(this, ID_PANEL_G);
+    statPanel->SetBackgroundColour(*wxBLACK);
+    statPanel->Hide();
+
 	wxStaticText* gameTitle = new wxStaticText(startPanel, wxID_ANY, "BITQUEST", wxPoint(300, 175), wxSize(200, 50), wxALIGN_CENTER_HORIZONTAL);
 	gameTitle->SetForegroundColour(*wxGREEN);
 	wxFont titleFont = gameTitle->GetFont();
@@ -105,6 +120,21 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     infoBox->SetFont(infoFont);
     infoBox->GetParent()->Layout();
     infoBox->Bind(wxEVT_KEY_DOWN, &MainFrame::choiceBoxSelect, this);
+    //For menu
+    menuBox = new wxListBox(menuPanel, wxID_ANY, wxPoint(50, 175), wxSize(700, 225), choiceMenuOverworld, wxLB_SINGLE | wxWANTS_CHARS);
+    menuBox->SetForegroundColour(*wxWHITE);
+    menuBox->SetBackgroundColour(*wxBLACK);
+    wxFont menuFont = menuBox->GetFont();
+    menuFont.SetPointSize(16);
+    menuBox->SetFont(menuFont);
+    menuBox->GetParent()->Layout();
+    menuBox->Bind(wxEVT_KEY_DOWN, &MainFrame::menuBoxSelect, this);
+    //Inventory
+    inventoryList = new wxListCtrl(inventoryPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT);
+    inventoryList->InsertColumn(0, "Name", wxLIST_FORMAT_LEFT, 150);
+    inventoryList->InsertColumn(1, "Equiped", wxLIST_FORMAT_RIGHT, 60);
+    inventoryList->InsertColumn(2, "Item ID", wxLIST_FORMAT_RIGHT, 80);
+    //Stats
     
 
 	wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
@@ -112,6 +142,9 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
 	mainSizer->Add(savePanel, 1, wxEXPAND); // Add both panels to the sizer
     mainSizer->Add(namePanel, 1, wxEXPAND);
     mainSizer->Add(choicePanel, 1, wxEXPAND);
+    mainSizer->Add(menuPanel, 1, wxEXPAND);
+    mainSizer->Add(inventoryPanel, 1, wxEXPAND);
+    mainSizer->Add(statPanel, 1, wxEXPAND);
 	mainSizer->Add(switchButton, 0, wxALIGN_CENTER | wxALL, 5);
 	SetSizerAndFit(mainSizer);
 	CreateStatusBar();
@@ -120,7 +153,7 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
 void MainFrame::setUpLookUp() {
     //setup for lookUp Table
     int itemID = 000;
-    string itemName = "";
+    wxString itemName = "";
     int type = 0;
     int price = 0;
     bool equiped = false;
@@ -302,6 +335,9 @@ void MainFrame::namePlayer(wxCommandEvent& evt) {
     if (isValidName(testingString)) {
         playerChar.pName = testingString;
         messageString = wxT("Name accepted!");
+        namePanel->Hide();
+        choicePanel->Show();
+        GetSizer()->Layout();
     }
     else {
         messageString = wxT("Err. Name not accepted. Name must be between 1 and 20 characters, and must not have #, ! or @");
@@ -533,7 +569,29 @@ int MainFrame::getRandom(int rMin, int rMax) {
 	int randomValue = distrib(gen);
 	return randomValue;
 }
+void MainFrame::populateInventory() {
+    inventoryList->DeleteAllItems();
+    for (size_t i = 0; i < pItems.size(); ++i) {
+        long index = inventoryList->InsertItem(i, pItems[i]->name); // Column 0
+        if (pItems[i]->type == 0) {
+            if (pItems[i]->equiped == true) {
+                inventoryList->SetItem(index, 1, wxString("[E]")); // Column 1
+            }
+            else {
+                inventoryList->SetItem(index, 1, wxString("[ ]")); // Column 1
+            }
+        }
+        else {
+            inventoryList->SetItem(index, 1, wxString("N/A")); // Column 1
+        }
+        
+        inventoryList->SetItem(index, 2, wxString::Format(wxT("%d"), pItems[i]->itemId));   // Column 2
 
+        // Associate client data (e.g., the item's unique ID or index in vector)
+        // This is crucial for retrieving the correct data when an item is selected
+        inventoryList->SetItemData(index, i); // Store the vector index as client data
+    }
+}
 void MainFrame::switchViewButton(wxCommandEvent& evt) {
     //int parentId = 0;
     
@@ -553,6 +611,10 @@ void MainFrame::switchViewButton(wxCommandEvent& evt) {
     }
     else if (choicePanel->IsShown()) {
         choicePanel->Hide();
+        menuPanel->Show();
+    }
+    else if (menuPanel->IsShown()) {
+        menuPanel->Hide();
         startPanel->Show();
     }
 	GetSizer()->Layout(); // Update the layout
@@ -598,6 +660,11 @@ void MainFrame::choiceBoxSelect(wxKeyEvent& evt) {
         if (choiceSelected != wxNOT_FOUND) {
             wxString holderStr = wxString::Format("Choice Selected: %d", choiceSelected);
             wxLogStatus(holderStr);
+            if (choiceSelected == 3) {
+                choicePanel->Hide();
+                menuPanel->Show();
+                GetSizer()->Layout(); // Update the layout
+            }
         }
         
     }
@@ -605,4 +672,46 @@ void MainFrame::choiceBoxSelect(wxKeyEvent& evt) {
         evt.Skip();
     }
     
+}
+void MainFrame::menuBoxSelect(wxKeyEvent& evt) {
+    if (evt.GetKeyCode() == WXK_RETURN) {
+        int choiceSelected = menuBox->GetSelection();
+        if (choiceSelected != wxNOT_FOUND) {
+            wxString holderStr = wxString::Format("Choice Selected: %d", choiceSelected);
+            wxLogStatus(holderStr);
+            if (choiceSelected == 0) {
+                wxLogStatus("Not Done Yet!");
+                //Inventory
+                populateInventory();
+                menuPanel->Hide();
+                inventoryPanel->Show();
+                GetSizer()->Layout(); // Update the layout
+            }
+            if (choiceSelected == 1) {
+                wxLogStatus("Not Done Yet!");
+                //Stats
+                //menuPanel->Hide();
+                //choicePanel->Show();
+                //GetSizer()->Layout(); // Update the layout
+            }
+            if (choiceSelected == 2) {
+                wxLogStatus("Not Done Yet!");
+                //Magic
+                //GetSizer()->Layout(); // Update the layout
+            }
+            if (choiceSelected == 3) {
+                menuPanel->Hide();
+                choicePanel->Show();
+                GetSizer()->Layout(); // Update the layout
+            }
+            if (choiceSelected == 4) {
+                Close(true); //close the game
+            }
+        }
+
+    }
+    else {
+        evt.Skip();
+    }
+
 }

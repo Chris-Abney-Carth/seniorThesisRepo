@@ -1,5 +1,6 @@
 #pragma once
 #include <wx/wx.h>
+#include <wx/listctrl.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -35,6 +36,8 @@ private:
 	wxPanel* namePanel;
 	//For main choices, aka town square and town edge
 	wxPanel* choicePanel;
+	//For menu
+	wxPanel* menuPanel;
 	//For inventory
 	wxPanel* inventoryPanel;
 	//For stats
@@ -42,6 +45,8 @@ private:
 	//For during battle
 	wxPanel* fightPanel;
 	wxListBox* infoBox;
+	wxListBox* menuBox;
+	wxListCtrl* inventoryList;
 	wxButton* switchButton;
 	vector<string> savePaths;
 	string currSavePath;
@@ -57,5 +62,7 @@ private:
 	void startButtonClicked(wxCommandEvent& evt);
 	void saveFileChosen(wxCommandEvent& evt);
 	void choiceBoxSelect(wxKeyEvent& evt);
+	void menuBoxSelect(wxKeyEvent& evt);
+	void populateInventory();
 };
 
