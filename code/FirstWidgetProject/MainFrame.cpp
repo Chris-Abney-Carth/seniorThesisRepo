@@ -28,7 +28,8 @@ enum {
     ID_PANEL_D,
     ID_PANEL_E,
     ID_PANEL_F,
-    ID_PANEL_G
+    ID_PANEL_G,
+    ID_PANEL_H
 };
 
 MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
@@ -83,6 +84,10 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     statPanel->SetBackgroundColour(*wxBLACK);
     statPanel->Hide();
 
+    fightPanel = new wxPanel(this, ID_PANEL_H);
+    fightPanel->SetBackgroundColour(*wxBLACK);
+    fightPanel->Hide();
+
 	wxStaticText* gameTitle = new wxStaticText(startPanel, wxID_ANY, "BITQUEST", wxPoint(300, 175), wxSize(200, 50), wxALIGN_CENTER_HORIZONTAL);
 	gameTitle->SetForegroundColour(*wxGREEN);
 	wxFont titleFont = gameTitle->GetFont();
@@ -130,12 +135,22 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     menuBox->GetParent()->Layout();
     menuBox->Bind(wxEVT_KEY_DOWN, &MainFrame::menuBoxSelect, this);
     //Inventory
-    inventoryList = new wxListCtrl(inventoryPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT);
+    inventoryList = new wxListCtrl(inventoryPanel, wxID_ANY, wxPoint(50, 175), wxSize(700, 125), wxLC_REPORT);
     inventoryList->InsertColumn(0, "Name", wxLIST_FORMAT_LEFT, 150);
     inventoryList->InsertColumn(1, "Equiped", wxLIST_FORMAT_RIGHT, 60);
     inventoryList->InsertColumn(2, "Item ID", wxLIST_FORMAT_RIGHT, 80);
-    //Stats
+    wxButton* exitInventory = new wxButton(inventoryPanel, wxID_ANY, "Exit", wxPoint(300, 375), wxSize(200, 50));
+
+    exitInventory->Bind(wxEVT_BUTTON, &MainFrame::exitInventory, this);
     
+    //Stats
+    statGrid = new wxPropertyGrid(statPanel, wxID_ANY, wxPoint(325, 75), wxSize(150, 325), wxPG_DEFAULT_STYLE);
+    
+
+    wxButton* exitStats = new wxButton(statPanel, wxID_ANY, "Exit", wxPoint(300, 450), wxSize(200, 50));
+
+    exitStats->Bind(wxEVT_BUTTON, &MainFrame::exitStats, this);
+
 
 	wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 	mainSizer->Add(startPanel, 1, wxEXPAND);
@@ -145,6 +160,7 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     mainSizer->Add(menuPanel, 1, wxEXPAND);
     mainSizer->Add(inventoryPanel, 1, wxEXPAND);
     mainSizer->Add(statPanel, 1, wxEXPAND);
+    mainSizer->Add(fightPanel,1, wxEXPAND);
 	mainSizer->Add(switchButton, 0, wxALIGN_CENTER | wxALL, 5);
 	SetSizerAndFit(mainSizer);
 	CreateStatusBar();
@@ -569,6 +585,66 @@ int MainFrame::getRandom(int rMin, int rMax) {
 	int randomValue = distrib(gen);
 	return randomValue;
 }
+void MainFrame::getPlayerStatsSimple(Player player, int& simAtk, int& simDef, int& simSpe, int& simAgi, int& simGut, int& simWit) {
+    //Stats that will need to be simple
+    simAtk = player.pAttack;
+    simDef = player.pDefense;
+    simSpe = player.pSpeed;
+    simAgi = player.pAgility;
+    simGut = player.pGuts;
+    simWit = player.pWits;
+    if (player.pWeaponEquiped == true || player.pBodyEquiped == true || player.pAccEquiped == true || player.pMiscEquiped == true) {
+        if (player.pWeaponEquiped == true) {
+            for (int i = 0; i < iLookUp.size(); i++) {
+                if (iLookUp[i]->itemId == player.pWeaponId) {
+                    simAtk += iLookUp[i]->atkBoost;
+                    simDef += iLookUp[i]->defBoost;
+                    simSpe += iLookUp[i]->speedBoost;
+                    simAgi += iLookUp[i]->agilBoost;
+                    simGut += iLookUp[i]->gutsBoost;
+                    simWit += iLookUp[i]->witsBoost;
+                }
+            }
+        }
+        if (player.pBodyEquiped == true) {
+            for (int i = 0; i < iLookUp.size(); i++) {
+                if (iLookUp[i]->itemId == player.pBodyId) {
+                    simAtk += iLookUp[i]->atkBoost;
+                    simDef += iLookUp[i]->defBoost;
+                    simSpe += iLookUp[i]->speedBoost;
+                    simAgi += iLookUp[i]->agilBoost;
+                    simGut += iLookUp[i]->gutsBoost;
+                    simWit += iLookUp[i]->witsBoost;
+                }
+            }
+        }
+        if (player.pAccEquiped == true) {
+            for (int i = 0; i < iLookUp.size(); i++) {
+                if (iLookUp[i]->itemId == player.pAccId) {
+                    simAtk += iLookUp[i]->atkBoost;
+                    simDef += iLookUp[i]->defBoost;
+                    simSpe += iLookUp[i]->speedBoost;
+                    simAgi += iLookUp[i]->agilBoost;
+                    simGut += iLookUp[i]->gutsBoost;
+                    simWit += iLookUp[i]->witsBoost;
+                }
+            }
+        }
+        if (player.pMiscEquiped == true) {
+            for (int i = 0; i < iLookUp.size(); i++) {
+                if (iLookUp[i]->itemId == player.pMiscId) {
+                    simAtk += iLookUp[i]->atkBoost;
+                    simDef += iLookUp[i]->defBoost;
+                    simSpe += iLookUp[i]->speedBoost;
+                    simAgi += iLookUp[i]->agilBoost;
+                    simGut += iLookUp[i]->gutsBoost;
+                    simWit += iLookUp[i]->witsBoost;
+                }
+            }
+        }
+    }
+   //finished!
+}
 void MainFrame::populateInventory() {
     inventoryList->DeleteAllItems();
     for (size_t i = 0; i < pItems.size(); ++i) {
@@ -590,6 +666,127 @@ void MainFrame::populateInventory() {
         // Associate client data (e.g., the item's unique ID or index in vector)
         // This is crucial for retrieving the correct data when an item is selected
         inventoryList->SetItemData(index, i); // Store the vector index as client data
+    }
+}
+void MainFrame::populateStats(Player player) {
+    /**
+    * Stats will be
+    * Name
+    * Level
+    * Exp
+    * Gold
+    * Hp/MaxHp
+    * Mp/MaxMp
+    * Attack
+    * Defence
+    * Speed
+    * Agility
+    * Guts
+    * Wits
+    * We can't just use the player, we need that stats for level up, and these will use base stats plus weapons.
+    **/
+    getPlayerStatsSimple(player, simpleAttack, simpleDefense, simpleSpeed, simpleAgility, simpleGuts, simpleWits);
+    statGrid->Append(new  wxPropertyCategory("Player Info", "player_info"));
+    statGrid->Append(new wxStringProperty("Name", "player_name", player.pName));
+    statGrid->Append(new wxIntProperty("Level", "player_level", player.pLevel));
+    statGrid->Append(new wxIntProperty("EXP", "player_exp", player.pExp));
+    statGrid->Append(new wxIntProperty("Gold", "player_gold", player.pGold));
+
+    statGrid->Append(new  wxPropertyCategory("Player Stats", "player_stats"));
+    statGrid->Append(new wxStringProperty("HP", "player_HPOOM", wxString::Format("%d / %d", player.pHP, player.maxHP)));
+    statGrid->Append(new wxStringProperty("MP", "player_MPOOM", wxString::Format("%d / %d", player.pMP, player.maxMP)));
+    statGrid->Append(new wxIntProperty("Attack", "player_atk", simpleAttack));
+    statGrid->Append(new wxIntProperty("Defense", "player_def", simpleDefense));
+    statGrid->Append(new wxIntProperty("Speed", "player_spe", simpleSpeed));
+    statGrid->Append(new wxIntProperty("Agility", "player_agi", simpleAgility));
+    statGrid->Append(new wxIntProperty("Guts", "player_gut", simpleGuts));
+    statGrid->Append(new wxIntProperty("Wits", "player_wit", simpleWits));
+    setUpStats = true;
+}
+void MainFrame::updateStats(Player player) {
+    /**
+    * Stats will be
+    * Name
+    * Level
+    * Exp
+    * Gold
+    * Hp/MaxHp
+    * Mp/MaxMp
+    * Attack
+    * Defence
+    * Speed
+    * Agility
+    * Guts
+    * Wits
+    * We can't just use the player, we need that stats for level up, and these will use base stats plus weapons.
+    **/
+    getPlayerStatsSimple(player, simpleAttack, simpleDefense, simpleSpeed, simpleAgility, simpleGuts, simpleWits);
+    /**
+    statGrid->Append(new wxStringProperty("Name", "player_name", player.pName));
+    statGrid->Append(new wxIntProperty("Level", "player_level", player.pLevel));
+    statGrid->Append(new wxIntProperty("EXP", "player_exp", player.pExp));
+    statGrid->Append(new wxIntProperty("Gold", "player_gold", player.pGold));
+
+    statGrid->Append(new  wxPropertyCategory("Player Stats", "player_stats"));
+    statGrid->Append(new wxStringProperty("HP", "player_HPOOM", wxString::Format("%d / %d", player.pHP, player.maxHP)));
+    statGrid->Append(new wxStringProperty("MP", "player_MPOOM", wxString::Format("%d / %d", player.pMP, player.maxMP)));
+    statGrid->Append(new wxIntProperty("Attack", "player_atk", simpleAttack));
+    statGrid->Append(new wxIntProperty("Defense", "player_def", simpleDefense));
+    statGrid->Append(new wxIntProperty("Speed", "player_spe", simpleSpeed));
+    statGrid->Append(new wxIntProperty("Agility", "player_agi", simpleAgility));
+    statGrid->Append(new wxIntProperty("Guts", "player_gut", simpleGuts));
+    statGrid->Append(new wxIntProperty("Wits", "player_wit", simpleWits));
+    setUpStats = true;
+    **/
+    wxPGProperty* nameProp = statGrid->GetPropertyByName("player_name");
+    if (nameProp) {
+        statGrid->SetPropertyValue(nameProp, wxVariant(player.pName));
+    }
+    wxPGProperty* levelProp = statGrid->GetPropertyByName("player_level");
+    if (levelProp) {
+        statGrid->SetPropertyValue(levelProp, wxVariant(player.pLevel));
+    }
+    wxPGProperty* expProp = statGrid->GetPropertyByName("player_exp");
+    if (expProp) {
+        statGrid->SetPropertyValue(expProp, wxVariant(player.pExp));
+    }
+    wxPGProperty* goldProp = statGrid->GetPropertyByName("player_gold");
+    if (goldProp) {
+        statGrid->SetPropertyValue(goldProp, wxVariant(player.pGold));
+    }
+
+    wxPGProperty* hpProp = statGrid->GetPropertyByName("player_HPOOM");
+    if (hpProp) {
+        statGrid->SetPropertyValue(hpProp, wxVariant(wxString::Format("%d / %d", player.pHP, player.maxHP)));
+    }
+    wxPGProperty* mpProp = statGrid->GetPropertyByName("player_MPOOM");
+    if (mpProp) {
+        statGrid->SetPropertyValue(mpProp, wxVariant(wxString::Format("%d / %d", player.pMP, player.maxMP)));
+    }
+    wxPGProperty* atkProp = statGrid->GetPropertyByName("player_atk");
+    if (atkProp) {
+        statGrid->SetPropertyValue(atkProp, wxVariant(simpleAttack));
+    }
+    wxPGProperty* defProp = statGrid->GetPropertyByName("player_def");
+    if (defProp) {
+        statGrid->SetPropertyValue(defProp, wxVariant(simpleDefense));
+    }
+
+    wxPGProperty* speProp = statGrid->GetPropertyByName("player_spe");
+    if (speProp) {
+        statGrid->SetPropertyValue(speProp, wxVariant(simpleSpeed));
+    }
+    wxPGProperty* agiProp = statGrid->GetPropertyByName("player_agi");
+    if (agiProp) {
+        statGrid->SetPropertyValue(agiProp, wxVariant(simpleAgility));
+    }
+    wxPGProperty* gutProp = statGrid->GetPropertyByName("player_gut");
+    if (gutProp) {
+        statGrid->SetPropertyValue(gutProp, wxVariant(simpleGuts));
+    }
+    wxPGProperty* witProp = statGrid->GetPropertyByName("player_wit");
+    if (witProp) {
+        statGrid->SetPropertyValue(witProp, wxVariant(simpleWits));
     }
 }
 void MainFrame::switchViewButton(wxCommandEvent& evt) {
@@ -615,6 +812,14 @@ void MainFrame::switchViewButton(wxCommandEvent& evt) {
     }
     else if (menuPanel->IsShown()) {
         menuPanel->Hide();
+        inventoryPanel->Show();
+    }
+    else if (inventoryPanel->IsShown()) {
+        inventoryPanel->Hide();
+        statPanel->Show();
+    }
+    else if (statPanel->IsShown()) {
+        statPanel->Hide();
         startPanel->Show();
     }
 	GetSizer()->Layout(); // Update the layout
@@ -690,9 +895,15 @@ void MainFrame::menuBoxSelect(wxKeyEvent& evt) {
             if (choiceSelected == 1) {
                 wxLogStatus("Not Done Yet!");
                 //Stats
-                //menuPanel->Hide();
-                //choicePanel->Show();
-                //GetSizer()->Layout(); // Update the layout
+                if (setUpStats == false) {
+                    populateStats(playerChar);
+                }
+                else {
+                    updateStats(playerChar);
+                }
+                menuPanel->Hide();
+                statPanel->Show();
+                GetSizer()->Layout(); // Update the layout
             }
             if (choiceSelected == 2) {
                 wxLogStatus("Not Done Yet!");
@@ -714,4 +925,24 @@ void MainFrame::menuBoxSelect(wxKeyEvent& evt) {
         evt.Skip();
     }
 
+}
+void MainFrame::exitInventory(wxCommandEvent& evt) {
+    if (inBattle == false) {
+        //For menu outside of battel
+        inventoryPanel->Hide();
+        menuPanel->Show();
+        GetSizer()->Layout(); // Update the layout
+    }
+    else {
+        wxLogStatus("In battle");
+        //Temp code. REMEBER TO REMOVE
+        inventoryPanel->Hide();
+        menuPanel->Show();
+        GetSizer()->Layout(); // Update the layout
+    }
+}
+void MainFrame::exitStats(wxCommandEvent& evt) {
+    statPanel->Hide();
+    menuPanel->Show();
+    GetSizer()->Layout(); // Update the layout
 }
