@@ -24,7 +24,7 @@ public:
 	//This will use pannel ID to identify which panel to go to.
 	int curPanelID = 0;
 	int totalPanels = 3;
-	string tempName;
+	string tempName = "";
 	vector<Item*> iLookUp;
 	vector<Enemy*> eLookUP;
 	vector<Item*> pItems;
@@ -39,6 +39,10 @@ public:
 	int choiceID = -1;
 	string inventroyMessage = "";
 	int sceneCurrent = 0;
+	int playerbattleChoice = 0;
+	bool playerFightReady = false;
+	bool enemyFightReady = false;
+	//0 = attack
 	//Simple player stats are states that are used for fights or stat screen. They are not the base value for some stats.
 	wxArrayString choiceOptions;
 	wxArrayString choiceMenuOverworld;
@@ -62,12 +66,14 @@ private:
 	//For during battle
 	wxPanel* fightPanel;
 	wxListBox* infoBox;
+	wxListBox* fightBox;
 	wxListBox* menuBox;
 	wxListCtrl* inventoryList;
 	wxPropertyGrid* statGrid;
 	wxButton* switchButton;
 	wxTextCtrl* describeText;
 	wxTextCtrl* sceneText;
+	wxTextCtrl* fightText;
 	vector<string> savePaths;
 	//for simple player stats, we need to have more complex items, so sting is best, as how do we show hp/maxHp with numbers? Will set this up with default values
 	string currSavePath;
@@ -92,6 +98,8 @@ private:
 	void exitInventory(wxCommandEvent& evt);
 	void exitStats(wxCommandEvent& evt);
 	void useItem(wxCommandEvent& evt);
+	void fightChoiceSelect(wxKeyEvent& evt);
+	void battleTime(int battleChoice);
 
 };
 

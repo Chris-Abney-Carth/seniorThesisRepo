@@ -48,10 +48,10 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
 	savePaths.push_back("playerSave2.txt");
 	savePaths.push_back("playerSave3.txt");
 
+    choiceOptions.Add("Open Menu");
     choiceOptions.Add("Go to Castle");
     choiceOptions.Add("Go to Shop");
     choiceOptions.Add("Go to Field");
-    choiceOptions.Add("Open Menu");
 
     choiceMenuOverworld.Add("Inventory");
     choiceMenuOverworld.Add("Stats");
@@ -59,10 +59,9 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     choiceMenuOverworld.Add("Exit Menu");
     choiceMenuOverworld.Add("Quit Game");
     
+    choiceCastle.Add("Open Menu");
     choiceCastle.Add("Save Game");
     choiceCastle.Add("Exit Castle");
-    choiceCastle.Add("Talk To Guy");
-    choiceCastle.Add("Open Menu");
 
     choiceMenuFight.Add("Attack");
     choiceMenuFight.Add("Magic");
@@ -143,6 +142,8 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     sceneText = new wxTextCtrl(choicePanel, wxID_ANY, "Test", wxPoint(50, 50), wxSize(700, 225), wxTE_READONLY);
     sceneText->SetBackgroundColour(*wxBLACK);
     sceneText->SetForegroundColour(*wxWHITE);
+    sceneText->SetFont(infoFont);
+    sceneText->GetParent()->Layout();
     sceneCurrent = 1;
     //For menu
     menuBox = new wxListBox(menuPanel, wxID_ANY, wxPoint(50, 175), wxSize(700, 225), choiceMenuOverworld, wxLB_SINGLE | wxWANTS_CHARS);
@@ -176,6 +177,20 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     wxButton* exitStats = new wxButton(statPanel, wxID_ANY, "Exit", wxPoint(300, 450), wxSize(200, 50));
 
     exitStats->Bind(wxEVT_BUTTON, &MainFrame::exitStats, this);
+    //Fight This will be specific becuase I want to do things with it.
+    fightBox = new wxListBox(fightPanel, wxID_ANY, wxPoint(50, 375), wxSize(700, 125), choiceMenuFight, wxLB_SINGLE | wxWANTS_CHARS);
+    fightBox->SetForegroundColour(*wxWHITE);
+    fightBox->SetBackgroundColour(*wxBLACK);
+    wxFont battleFont = fightBox->GetFont();
+    battleFont.SetPointSize(16);
+    fightBox->SetFont(battleFont);
+    fightBox->GetParent()->Layout();
+    fightBox->Bind(wxEVT_KEY_DOWN, &MainFrame::fightChoiceSelect, this);
+    fightText = new wxTextCtrl(fightPanel, wxID_ANY, "Test", wxPoint(50, 50), wxSize(700, 225), wxTE_READONLY);
+    fightText->SetBackgroundColour(*wxBLACK);
+    fightText->SetForegroundColour(*wxWHITE);
+    fightText->SetFont(battleFont);
+    fightText->GetParent()->Layout();
 
 	wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 	mainSizer->Add(startPanel, 1, wxEXPAND);
@@ -900,8 +915,17 @@ void MainFrame::choiceBoxSelect(wxKeyEvent& evt) {
             wxString holderStr = wxString::Format("Choice Selected: %d", choiceSelected);
             wxLogStatus(holderStr);
             if (choiceSelected == 0) {
+                if (sceneCurrent == 1 || sceneCurrent == 2) {
+                    choicePanel->Hide();
+                    menuPanel->Show();
+                    GetSizer()->Layout(); // Update the layout
+                }
+            }
+            if (choiceSelected == 1) {
                 if (sceneCurrent == 1) {
                     infoBox->Set(choiceCastle);
+                    infoBox->Deselect(choiceSelected);
+                    choiceSelected = -1;
                     if (playerChar.pStoryFlag == 1) {
                         
                         sceneText->SetLabelText("Welcome Hero. This is the castle. You can save your quest here. Take this sword and 20 gold.");
@@ -919,23 +943,27 @@ void MainFrame::choiceBoxSelect(wxKeyEvent& evt) {
                     savePlayerSave(savePaths[selectedPath]);
                 }
             }
-            if (choiceSelected == 1) {
+            if (choiceSelected == 2) {
                 if (sceneCurrent == 1) {
                     wxLogStatus("Not done yet!");
                 }
                 if (sceneCurrent == 2) {
                     infoBox->Set(choiceOptions);
+                    infoBox->Deselect(choiceSelected);
+                    choiceSelected = -1;
                     sceneText->SetLabelText("You are in the town square. Select where you want to go.");
                     sceneCurrent = 1;
                 }
             }
             if (choiceSelected == 3) {
-                if (sceneCurrent == 1 || sceneCurrent == 2) {
-                    choicePanel->Hide();
-                    menuPanel->Show();
-                    GetSizer()->Layout(); // Update the layout
+                if (sceneCurrent == 1) {
+                    wxLogStatus("Not done yet!");
+                }
+                if (sceneCurrent == 2) {
+                    wxLogStatus("How did you select this?");
                 }
             }
+            
         }
         
     }
@@ -1143,6 +1171,46 @@ void MainFrame::useItem(wxCommandEvent& evt) {
         evt.Skip();
     }
 }
+void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
+    //0 = attack
+    //1 = magic
+    //2 = inventory
+    //3 = run
+    if (evt.GetKeyCode() == WXK_RETURN) {
+        int choiceSelected = fightBox->GetSelection();
+        if (choiceSelected != wxNOT_FOUND) {
+            wxString holderStr = wxString::Format("Choice Selected: %d", choiceSelected);
+            wxLogStatus(holderStr);
+            if (choiceSelected == 0) {
+                wxLogStatus("Not Done");
+                playerbattleChoice = 0;
+                playerFightReady = true;
+
+            }
+            if (choiceSelected == 1) {
+                wxLogStatus("Not Done");
+                fightText->SetLabelText("Not done!");
+            }
+            if (choiceSelected == 2) {
+                wxLogStatus("Not Done");
+                fightText->SetLabelText("Not done!");
+            }
+            if (choiceSelected == 3) {
+                fightText->SetLabelText("You ran away!");
+                fightPanel->Hide();
+                menuPanel->Show();
+                GetSizer()->Layout(); // Update the layout
+                playerbattleChoice = 3;
+                playerFightReady = true;
+            }
+
+        }
+
+    }
+    else {
+        evt.Skip();
+    }
+}
 void MainFrame::exitInventory(wxCommandEvent& evt) {
     if (inBattle == false) {
         //For menu outside of battel
@@ -1165,4 +1233,12 @@ void MainFrame::exitStats(wxCommandEvent& evt) {
     statPanel->Hide();
     menuPanel->Show();
     GetSizer()->Layout(); // Update the layout
+}
+void MainFrame::battleTime(int battleChoice) {
+    bool pTurn = false;
+    inBattle = true;
+    int ranEn = getRandom(0, (numOEn - 1));
+    Enemy* battleEn = eLookUP[0];
+    fightText->SetLabelText("An Enemy Approaches!");
+
 }
