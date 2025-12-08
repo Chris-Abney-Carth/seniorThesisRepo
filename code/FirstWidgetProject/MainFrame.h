@@ -36,6 +36,8 @@ public:
 	int simpleGuts = 0;
 	int simpleWits = 0;
 	bool setUpStats;
+	int choiceID = -1;
+	string inventroyMessage = "";
 	//Simple player stats are states that are used for fights or stat screen. They are not the base value for some stats.
 private:
 	//Start screen
@@ -59,6 +61,7 @@ private:
 	wxListCtrl* inventoryList;
 	wxPropertyGrid* statGrid;
 	wxButton* switchButton;
+	wxTextCtrl* describeText;
 	vector<string> savePaths;
 	//for simple player stats, we need to have more complex items, so sting is best, as how do we show hp/maxHp with numbers? Will set this up with default values
 	string currSavePath;
@@ -75,12 +78,14 @@ private:
 	void saveFileChosen(wxCommandEvent& evt);
 	void choiceBoxSelect(wxKeyEvent& evt);
 	void menuBoxSelect(wxKeyEvent& evt);
+	void itemSelect(wxListEvent& evt);
 	void populateInventory();
 	void populateStats(Player player);
 	void getPlayerStatsSimple(Player player, int& simAtk, int& simDef, int& simSpe, int& simAgi, int& simGut, int& simWit);
 	void updateStats(Player player);
 	void exitInventory(wxCommandEvent& evt);
 	void exitStats(wxCommandEvent& evt);
+	void useItem(wxCommandEvent& evt);
 
 };
 

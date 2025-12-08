@@ -32,6 +32,16 @@ enum {
     ID_PANEL_H
 };
 
+enum {
+    ID_LIST_A = 2001
+};
+
+enum {
+    ID_INVENTORY_BUTTON_A = 2101,
+    ID_INVENTORY_BUTTON_B,
+    ID_INVENTORY_BUTTON_C
+};
+
 MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
 
 	savePaths.push_back("playerSave1.txt");
@@ -135,12 +145,17 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     menuBox->GetParent()->Layout();
     menuBox->Bind(wxEVT_KEY_DOWN, &MainFrame::menuBoxSelect, this);
     //Inventory
-    inventoryList = new wxListCtrl(inventoryPanel, wxID_ANY, wxPoint(50, 175), wxSize(700, 125), wxLC_REPORT);
+    //Need to be able to secect item.
+    inventoryList = new wxListCtrl(inventoryPanel, 2001, wxPoint(50, 75), wxSize(700, 225), wxLC_REPORT | wxLC_SINGLE_SEL);
     inventoryList->InsertColumn(0, "Name", wxLIST_FORMAT_LEFT, 150);
     inventoryList->InsertColumn(1, "Equiped", wxLIST_FORMAT_RIGHT, 60);
     inventoryList->InsertColumn(2, "Item ID", wxLIST_FORMAT_RIGHT, 80);
-    wxButton* exitInventory = new wxButton(inventoryPanel, wxID_ANY, "Exit", wxPoint(300, 375), wxSize(200, 50));
-
+    inventoryList->Bind(wxEVT_LIST_ITEM_SELECTED, &MainFrame::itemSelect, this);
+    describeText = new wxTextCtrl(inventoryPanel, wxID_ANY, "TEST", wxPoint(50, 300), wxSize(700, 50), wxTE_READONLY);
+    wxButton* exitInventory = new wxButton(inventoryPanel, ID_INVENTORY_BUTTON_A, "Exit", wxPoint(300, 475), wxSize(200, 50));
+    wxButton* infoButton = new wxButton(inventoryPanel, ID_INVENTORY_BUTTON_B, "Info", wxPoint(75, 475), wxSize(200, 50));
+    wxButton* useButton = new wxButton(inventoryPanel, ID_INVENTORY_BUTTON_C, "Use", wxPoint(525, 475), wxSize(200, 50));
+    useButton->Bind(wxEVT_BUTTON, &MainFrame::useItem, this);
     exitInventory->Bind(wxEVT_BUTTON, &MainFrame::exitInventory, this);
     
     //Stats
@@ -150,7 +165,6 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     wxButton* exitStats = new wxButton(statPanel, wxID_ANY, "Exit", wxPoint(300, 450), wxSize(200, 50));
 
     exitStats->Bind(wxEVT_BUTTON, &MainFrame::exitStats, this);
-
 
 	wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 	mainSizer->Add(startPanel, 1, wxEXPAND);
@@ -926,9 +940,162 @@ void MainFrame::menuBoxSelect(wxKeyEvent& evt) {
     }
 
 }
+void MainFrame::itemSelect(wxListEvent& evt) {
+    long selectedItemIndex = evt.GetIndex();
+    wxString selectedText = inventoryList->GetItemText(selectedItemIndex);
+    wxString selectedItemID = inventoryList->GetItemText(selectedItemIndex,2);
+    wxLogStatus("Selected item: %s (Index: %ld) with Item ID of %s", selectedItemID, selectedItemIndex, selectedItemID);
+    choiceID = (int)selectedItemIndex;
+    evt.Skip();
+}
+void MainFrame::useItem(wxCommandEvent& evt) {
+    if (choiceID != -1) {
+        if (pItems[choiceID]->type == 0) {
+            if (pItems[choiceID]->equiped == false) {
+                if (pItems[choiceID]->equipType == 0) {
+                    if (playerChar.pWeaponEquiped == false) {
+                        playerChar.pWeaponEquiped = true;
+                    }
+                    playerChar.pWeaponId = pItems[choiceID]->itemId;
+                }
+                if (pItems[choiceID]->equipType == 1) {
+                    if (playerChar.pBodyEquiped == false) {
+                        playerChar.pBodyEquiped = true;
+                    }
+                    playerChar.pBodyId = pItems[choiceID]->itemId;
+                }
+                if (pItems[choiceID]->equipType == 2) {
+                    if (playerChar.pAccEquiped == false) {
+                        playerChar.pAccEquiped = true;
+                    }
+                    playerChar.pAccId = pItems[choiceID]->itemId;
+                }
+                if (pItems[choiceID]->equipType == 3) {
+                    if (playerChar.pMiscEquiped == false) {
+                        playerChar.pMiscEquiped = true;
+                    }
+                    playerChar.pMiscId = pItems[choiceID]->itemId;
+                }
+                pItems[choiceID]->equiped = true;
+                inventroyMessage = "Equipped " + pItems[choiceID]->name;
+            }
+            else {
+                if (pItems[choiceID]->equipType == 0) {
+                    if (playerChar.pWeaponEquiped == true) {
+                        playerChar.pWeaponEquiped = false;
+                    }
+                    playerChar.pWeaponId = 0;
+                }
+                if (pItems[choiceID]->equipType == 1) {
+                    if (playerChar.pBodyEquiped == true) {
+                        playerChar.pBodyEquiped = false;
+                    }
+                    playerChar.pBodyId = 0;
+                }
+                if (pItems[choiceID]->equipType == 2) {
+                    if (playerChar.pAccEquiped == true) {
+                        playerChar.pAccEquiped = false;
+                    }
+                    playerChar.pAccId = 0;
+                }
+                if (pItems[choiceID]->equipType == 3) {
+                    if (playerChar.pMiscEquiped == true) {
+                        playerChar.pMiscEquiped = false;
+                    }
+                    playerChar.pMiscId = 0;
+                }
+                pItems[choiceID]->equiped = false;
+                inventroyMessage = "Unequipped " + pItems[choiceID]->name;
+            }
+        }
+        else if (pItems[choiceID]->type == 1) {
+            bool hpMaxed = false;
+            bool mpMaxed = false;
+            bool noHPHeal = false;
+            bool noMPHeal = false;
+            string hpHealed = "";
+            string mpHealed = "";
+            playerChar.pHP += pItems[choiceID]->hpHeal;
+            if (playerChar.pHP > playerChar.maxHP) {
+                playerChar.pHP = playerChar.maxHP;
+                hpMaxed = true;
+            }
+            else {
+                hpMaxed = false;
+                if (pItems[choiceID]->hpHeal != 0) {
+                    noHPHeal = false;
+                    hpHealed = to_string(pItems[choiceID]->hpHeal);
+                }
+                else {
+                    noHPHeal = true;
+                }
+            }
+            playerChar.pMP += pItems[choiceID]->mpHeal;
+            if (playerChar.pMP > playerChar.maxMP) {
+                playerChar.pMP = playerChar.maxMP;
+                mpMaxed = true;
+            }
+            else {
+                mpMaxed = false;
+                if (pItems[choiceID]->mpHeal != 0) {
+                    noMPHeal = false;
+                    mpHealed = to_string(pItems[choiceID]->mpHeal);
+                }
+                else {
+                    noMPHeal = true;
+                }
+            }
+            if (hpMaxed == true && mpMaxed == true) {
+                inventroyMessage = "HP and MP maxed out!";
+            }
+            else if (hpMaxed == true && mpMaxed == false) {
+                if (noMPHeal == true) {
+                    inventroyMessage = "HP maxed out!";
+                }
+                else {
+                    inventroyMessage = "HP maxed out! Recovered " + mpHealed + " MP!";
+                }
+                
+            }
+            else if (hpMaxed == false && mpMaxed == true) {
+                if (noHPHeal == true) {
+                    inventroyMessage = "MP maxed out!";
+                }
+                else {
+                    inventroyMessage = "Recovered " + hpHealed + " MP maxed out!";
+                }
+
+            }
+            else if (hpMaxed == false && mpMaxed == false) {
+                if (noHPHeal == true && noMPHeal == true) {
+                    inventroyMessage = "You don't feel anyhing...";
+                }
+                else if (noHPHeal == true && noMPHeal == false) {
+                    inventroyMessage = "Revocered " + mpHealed + "MP!";
+                }
+                else if (noHPHeal == false && noMPHeal == true) {
+                    inventroyMessage = "Revocered " + hpHealed + "HP!";
+                }
+                else if (noHPHeal == false && noMPHeal == false) {
+                    inventroyMessage = "Revocered " + hpHealed + "HP! Revocered " + mpHealed + "MP!";
+                }
+
+            }
+            pItems.erase(pItems.begin() + choiceID);
+            choiceID = -1;
+            
+        }
+        describeText->SetLabelText(inventroyMessage);
+        populateInventory();
+    }else if (choiceID == -1) {
+        evt.Skip();
+    }
+}
 void MainFrame::exitInventory(wxCommandEvent& evt) {
     if (inBattle == false) {
         //For menu outside of battel
+        inventroyMessage = "";
+        describeText->SetLabelText(inventroyMessage);
         inventoryPanel->Hide();
         menuPanel->Show();
         GetSizer()->Layout(); // Update the layout

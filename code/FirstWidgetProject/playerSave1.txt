@@ -14,7 +14,7 @@ pExp 0
 pGold 0
 pStoryFlag 0
 pSaveSpot 0
-pInven 101
+pInven 101 1
 pWeaponId 0
 pBodyId 0
 pAccId 0
