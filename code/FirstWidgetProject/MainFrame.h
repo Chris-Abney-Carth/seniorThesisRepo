@@ -35,10 +35,15 @@ public:
 	int simpleAgility = 0;
 	int simpleGuts = 0;
 	int simpleWits = 0;
-	bool setUpStats;
+	bool setUpStats = false;
 	int choiceID = -1;
 	string inventroyMessage = "";
+	int sceneCurrent = 0;
 	//Simple player stats are states that are used for fights or stat screen. They are not the base value for some stats.
+	wxArrayString choiceOptions;
+	wxArrayString choiceMenuOverworld;
+	wxArrayString choiceCastle;
+	wxArrayString choiceMenuFight;
 private:
 	//Start screen
 	wxPanel* startPanel;
@@ -62,6 +67,7 @@ private:
 	wxPropertyGrid* statGrid;
 	wxButton* switchButton;
 	wxTextCtrl* describeText;
+	wxTextCtrl* sceneText;
 	vector<string> savePaths;
 	//for simple player stats, we need to have more complex items, so sting is best, as how do we show hp/maxHp with numbers? Will set this up with default values
 	string currSavePath;

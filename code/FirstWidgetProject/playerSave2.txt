@@ -3,7 +3,7 @@ pLevel 1
 pHP 10
 maxHP 10
 pMP 0
-maxMp 0
+maxMP 0
 pAttack 10
 pDefence 10
 pSpeed 5

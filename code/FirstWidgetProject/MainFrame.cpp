@@ -48,20 +48,22 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
 	savePaths.push_back("playerSave2.txt");
 	savePaths.push_back("playerSave3.txt");
 
-    wxArrayString choiceOptions;
     choiceOptions.Add("Go to Castle");
     choiceOptions.Add("Go to Shop");
     choiceOptions.Add("Go to Field");
     choiceOptions.Add("Open Menu");
 
-    wxArrayString choiceMenuOverworld;
     choiceMenuOverworld.Add("Inventory");
     choiceMenuOverworld.Add("Stats");
     choiceMenuOverworld.Add("Magic");
     choiceMenuOverworld.Add("Exit Menu");
     choiceMenuOverworld.Add("Quit Game");
     
-    wxArrayString choiceMenuFight;
+    choiceCastle.Add("Save Game");
+    choiceCastle.Add("Exit Castle");
+    choiceCastle.Add("Talk To Guy");
+    choiceCastle.Add("Open Menu");
+
     choiceMenuFight.Add("Attack");
     choiceMenuFight.Add("Magic");
     choiceMenuFight.Add("Inventory");
@@ -126,7 +128,10 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
 	wxButton* saveThreeButton = new wxButton(savePanel, ID_BUTTON_C, "Save 3", wxPoint(300, 375), wxSize(200, 50));
 	
 	Bind(wxEVT_BUTTON, &MainFrame::saveFileChosen, this, ID_BUTTON_A, ID_BUTTON_C);
-    //For Town square
+    //For Scenes
+    //1 = town square;
+    //2 = castle;
+    //3 = shop;
     infoBox = new wxListBox(choicePanel, wxID_ANY, wxPoint(50, 375), wxSize(700,125), choiceOptions, wxLB_SINGLE | wxWANTS_CHARS);
     infoBox->SetForegroundColour(*wxWHITE);
     infoBox->SetBackgroundColour(*wxBLACK);
@@ -135,6 +140,10 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     infoBox->SetFont(infoFont);
     infoBox->GetParent()->Layout();
     infoBox->Bind(wxEVT_KEY_DOWN, &MainFrame::choiceBoxSelect, this);
+    sceneText = new wxTextCtrl(choicePanel, wxID_ANY, "Test", wxPoint(50, 50), wxSize(700, 225), wxTE_READONLY);
+    sceneText->SetBackgroundColour(*wxBLACK);
+    sceneText->SetForegroundColour(*wxWHITE);
+    sceneCurrent = 1;
     //For menu
     menuBox = new wxListBox(menuPanel, wxID_ANY, wxPoint(50, 175), wxSize(700, 225), choiceMenuOverworld, wxLB_SINGLE | wxWANTS_CHARS);
     menuBox->SetForegroundColour(*wxWHITE);
@@ -152,6 +161,8 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     inventoryList->InsertColumn(2, "Item ID", wxLIST_FORMAT_RIGHT, 80);
     inventoryList->Bind(wxEVT_LIST_ITEM_SELECTED, &MainFrame::itemSelect, this);
     describeText = new wxTextCtrl(inventoryPanel, wxID_ANY, "TEST", wxPoint(50, 300), wxSize(700, 50), wxTE_READONLY);
+    describeText->SetBackgroundColour(*wxBLACK);
+    describeText->SetForegroundColour(*wxWHITE);
     wxButton* exitInventory = new wxButton(inventoryPanel, ID_INVENTORY_BUTTON_A, "Exit", wxPoint(300, 475), wxSize(200, 50));
     wxButton* infoButton = new wxButton(inventoryPanel, ID_INVENTORY_BUTTON_B, "Info", wxPoint(75, 475), wxSize(200, 50));
     wxButton* useButton = new wxButton(inventoryPanel, ID_INVENTORY_BUTTON_C, "Use", wxPoint(525, 475), wxSize(200, 50));
@@ -367,6 +378,7 @@ void MainFrame::namePlayer(wxCommandEvent& evt) {
         messageString = wxT("Name accepted!");
         namePanel->Hide();
         choicePanel->Show();
+        sceneText->SetLabelText("You are in the town square. Select where you want to go.");
         GetSizer()->Layout();
     }
     else {
@@ -437,7 +449,7 @@ void MainFrame::savePlayerSave(string curFile) {
     if (pItems.empty() == false) {
         for (int i = 0; i < pItems.size(); i++) {
             tempPlayerItems = tempPlayerItems + to_string(pItems[i]->itemId);
-            if (i != pItems.size()) {
+            if (i != pItems.size() - 1) {
                 tempPlayerItems = tempPlayerItems + " ";
             }
         }
@@ -448,7 +460,7 @@ void MainFrame::savePlayerSave(string curFile) {
     lines[18] = "pBodyId " + to_string(playerChar.pBodyId);
 
     lines[19] = "pAccId " + to_string(playerChar.pAccId);
-    lines[20] = "pMiscID " + to_string(playerChar.pMiscId);
+    lines[20] = "pMiscId " + to_string(playerChar.pMiscId);
 
     fstream saveFile(curFile, ios::out);
     if (saveFile.is_open()) {
@@ -589,6 +601,14 @@ void MainFrame::loadPlayerSave(string saveFile) {
             GetSizer()->Layout();
         }
         playerChar.pStoryFlag = 1;
+    }
+    else {
+        if (savePanel->IsShown()) {
+            savePanel->Hide();
+            choicePanel->Show();
+            sceneText->SetLabelText("You are in the town square. Select where you want to go.");
+            GetSizer()->Layout();
+        }
     }
     cout << "Welcome " << playerChar.pName << endl;
 }
@@ -879,10 +899,42 @@ void MainFrame::choiceBoxSelect(wxKeyEvent& evt) {
         if (choiceSelected != wxNOT_FOUND) {
             wxString holderStr = wxString::Format("Choice Selected: %d", choiceSelected);
             wxLogStatus(holderStr);
+            if (choiceSelected == 0) {
+                if (sceneCurrent == 1) {
+                    infoBox->Set(choiceCastle);
+                    if (playerChar.pStoryFlag == 1) {
+                        
+                        sceneText->SetLabelText("Welcome Hero. This is the castle. You can save your quest here. Take this sword and 20 gold.");
+                        getItem(1);
+                        playerChar.pGold += 20;
+                        playerChar.pStoryFlag = 2;
+                    }
+                    else {
+                        sceneText->SetLabelText("Welcome Hero. This is the castle. You can save your quest here.");
+                    }
+                    sceneCurrent = 2;
+                }
+                else if (sceneCurrent == 2) {
+                    wxLogStatus("Saving game");
+                    savePlayerSave(savePaths[selectedPath]);
+                }
+            }
+            if (choiceSelected == 1) {
+                if (sceneCurrent == 1) {
+                    wxLogStatus("Not done yet!");
+                }
+                if (sceneCurrent == 2) {
+                    infoBox->Set(choiceOptions);
+                    sceneText->SetLabelText("You are in the town square. Select where you want to go.");
+                    sceneCurrent = 1;
+                }
+            }
             if (choiceSelected == 3) {
-                choicePanel->Hide();
-                menuPanel->Show();
-                GetSizer()->Layout(); // Update the layout
+                if (sceneCurrent == 1 || sceneCurrent == 2) {
+                    choicePanel->Hide();
+                    menuPanel->Show();
+                    GetSizer()->Layout(); // Update the layout
+                }
             }
         }
         
@@ -1098,6 +1150,7 @@ void MainFrame::exitInventory(wxCommandEvent& evt) {
         describeText->SetLabelText(inventroyMessage);
         inventoryPanel->Hide();
         menuPanel->Show();
+        sceneText->SetLabelText("You are in the town square. Select where you want to go.");
         GetSizer()->Layout(); // Update the layout
     }
     else {
