@@ -19,6 +19,7 @@ public:
 	bool iLookUpMade = false;
 	bool eLookUpMade = false;
 	bool inBattle = false;
+	bool lostBattle = false;
 	int selectedPath = 0;
 	int numOEn = 0;
 	//This will use pannel ID to identify which panel to go to.
@@ -36,8 +37,11 @@ public:
 	int simpleGuts = 0;
 	int simpleWits = 0;
 	bool setUpStats = false;
+	bool playerWon = false;
 	int choiceID = -1;
+	bool battleUsedItem = false;
 	string inventroyMessage = "";
+	string itemUseTestMessage = "Test";
 	int sceneCurrent = 0;
 	int playerbattleChoice = 0;
 	bool playerFightReady = false;
@@ -51,6 +55,8 @@ public:
 	wxArrayString choiceCastle;
 	wxArrayString choiceMenuFight;
 	wxArrayString fightOverMenu;
+	wxArrayString battleLostMenu;
+	wxArrayString battelWonMenu;
 	Enemy* battleEn;
 private:
 	//Start screen

@@ -71,6 +71,9 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     fightOverMenu.Add("Continue");
     fightOverMenu.Add("Go Back");
 
+    battleLostMenu.Add("Continue?");
+    battleLostMenu.Add("Quit");
+
 	startPanel = new wxPanel(this, ID_PANEL_A);
 	startPanel->SetBackgroundColour(*wxBLACK);
 
@@ -189,7 +192,7 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     fightBox->SetFont(battleFont);
     fightBox->GetParent()->Layout();
     fightBox->Bind(wxEVT_KEY_DOWN, &MainFrame::fightChoiceSelect, this);
-    fightText = new wxTextCtrl(fightPanel, wxID_ANY, "Test", wxPoint(50, 50), wxSize(700, 225), wxTE_READONLY);
+    fightText = new wxTextCtrl(fightPanel, wxID_ANY, "Test", wxPoint(50, 50), wxSize(700, 225), wxTE_READONLY | wxTE_MULTILINE | wxTE_WORDWRAP);
     fightText->SetBackgroundColour(*wxBLACK);
     fightText->SetForegroundColour(*wxWHITE);
     fightText->SetFont(battleFont);
@@ -968,6 +971,12 @@ void MainFrame::choiceBoxSelect(wxKeyEvent& evt) {
                     wxLogStatus("Not done yet!");
                     choicePanel->Hide();
                     fightPanel->Show();
+                    if (setUpStats == false) {
+                        populateStats(playerChar);
+                    }
+                    else {
+                        updateStats(playerChar);
+                    }
                     battleStart();
                     GetSizer()->Layout();
                 }
@@ -1189,11 +1198,15 @@ void MainFrame::useItem(wxCommandEvent& evt) {
         if (inBattle == true && usedItem == true) {
             inventoryPanel->Hide();
             fightPanel->Show();
-            GetSizer()->Layout(); // Update the layout
-            //fightText->SetLabelText(inventroyMessage);
-            
-            playerbattleChoice = 2;
+            itemUseTestMessage = inventroyMessage;
+            playerbattleChoice = 3;
+            battleUsedItem = true;
             playerFightReady = true;
+            battleTime(playerbattleChoice);
+            GetSizer()->Layout(); // Update the layout
+            
+            
+            
         }
         describeText->SetLabelText(inventroyMessage);
         populateInventory();
@@ -1209,41 +1222,62 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
     //Second Scene is for after fight
     if (evt.GetKeyCode() == WXK_RETURN) {
         int choiceSelected = fightBox->GetSelection();
+
         if (choiceSelected != wxNOT_FOUND) {
             wxString holderStr = wxString::Format("Choice Selected: %d", choiceSelected);
             wxLogStatus(holderStr);
             if (choiceSelected == 0) {
-                if (inBattle == true) {
-                    wxLogStatus("Not Done");
-                    playerbattleChoice = 0;
-                    playerFightReady = true;
-                }
-                else if (inBattle == false) {
-                    
-                    fightBox->Set(choiceMenuFight);
-                    fightBox->Deselect(choiceSelected);
-                    choiceSelected = -1;
-                    battleStart();
-                }
-            }
-            if (choiceSelected == 1) {
-                if (inBattle == true) {
-                    wxLogStatus("Not Done");
-                    playerbattleChoice = 1;
-                    playerFightReady = true;
-                }
-                else if (inBattle == false) {
+                if (lostBattle == true){
                     fightPanel->Hide();
                     choicePanel->Show();
                     fightBox->Deselect(choiceSelected);
                     fightBox->Set(choiceMenuFight);
+                    lostBattle = false;
                     choiceSelected = -1;
                     GetSizer()->Layout(); // Update the layout
                 }
+                else {
+                    if (inBattle == true) {
+                        wxLogStatus("Not Done");
+                        playerbattleChoice = 1;
+                        playerFightReady = true;
+                    }
+                    else if (inBattle == false) {
+                        playerWon = false;
+                        fightBox->Set(choiceMenuFight);
+                        fightBox->Deselect(choiceSelected);
+                        choiceSelected = -1;
+                        battleEn->enHP = battleEn->enHPM;
+                        battleStart();
+                    }
+                }
+                
+            }
+            if (choiceSelected == 1) {
+                if (lostBattle == true) {
+                    Close(true); //close the game
+                }
+                else {
+                    if (inBattle == true) {
+                        wxLogStatus("Not Done");
+                        playerbattleChoice = 2;
+                        playerFightReady = false;
+                    }
+                    else if (inBattle == false) {
+                        playerWon = false;
+                        fightPanel->Hide();
+                        choicePanel->Show();
+                        fightBox->Deselect(choiceSelected);
+                        fightBox->Set(choiceMenuFight);
+                        choiceSelected = -1;
+                        GetSizer()->Layout(); // Update the layout
+                    }
+                }
+                
             }
             if (choiceSelected == 2) {
                 if (inBattle == true) {
-                    wxLogStatus("Not Done");
+                    //wxLogStatus("Not Done");
                     populateInventory();
                     fightPanel->Hide();
                     inventoryPanel->Show();
@@ -1256,13 +1290,15 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
             }
             if (choiceSelected == 3) {
                 if (inBattle == true) {
-                    playerbattleChoice = 3;
-                    playerFightReady = true;
+                    playerbattleChoice = 4;
+                    playerFightReady = false;
                     fightText->SetLabelText("You ran away!");
                     fightBox->Deselect(choiceSelected);
                     fightBox->Set(fightOverMenu);
+                    GetSizer()->Layout(); // Update the layout
                     choiceSelected = -1;
                     inBattle = false;
+
                     
                 } 
                 else {
@@ -1294,6 +1330,7 @@ void MainFrame::exitInventory(wxCommandEvent& evt) {
         //Temp code. REMEBER TO REMOVE
         inventoryPanel->Hide();
         fightPanel->Show();
+        usedItem = false;
         GetSizer()->Layout(); // Update the layout
     }
 }
@@ -1303,31 +1340,88 @@ void MainFrame::exitStats(wxCommandEvent& evt) {
     GetSizer()->Layout(); // Update the layout
 }
 void MainFrame::battleTime(int battleChoice) {
+    wxLogStatus("Used %d",battleChoice);
+    //case 1 will be attack, 2 is magic, 3 is item
     wxString fightingResult = "";
     wxString playerFightResult = "";
     wxString enResult = "It stood there...";
-    if (simpleSpeed > battleEn->enSpe) {
-        switch (battleChoice) {
-        case 0:
-            playerFightResult = "You swing at %s!\n", battleEn->enName;
-            if (playerChar.pCrit() == true) {
-                int damageDelt = (4 * simpleAttack - battleEn->enDef);
-                playerFightResult += "SMASH! You hit %s for %d damage!", battleEn->enName, damageDelt;
+    bool enFirst = false;
+    if (simpleSpeed >= battleEn->enSpe) {
+        enFirst = false;
+    }
+    else {
+        //en attack, not implimented yet.
+        enFirst = true;
+    }
+    switch (battleChoice) {
+    case 1:
+        wxLogStatus("Simple attack is%d", simpleAttack);
+        playerFightResult = "You swing at " + battleEn->enName + "\n";
+        if (playerChar.pCrit() == true) {
+            int damageDelt = (4 * simpleAttack - battleEn->enDef);
+            playerFightResult += "SMASH! You hit " + battleEn->enName + " for " + to_string(damageDelt)+ " damage!";
+            battleEn->enHP -= damageDelt;
+            if (battleEn->enHP < 0) {
+                battleEn->enHP = 0;
+            }
+        }
+        else {
+            if (playerChar.pHit(battleEn->enSlowStat, playerChar.playerSpeedEffect, battleEn->enAgi, simpleAgility) == false) {
+                playerFightResult += "Missed!";
+            }
+            else if (playerChar.pHit(battleEn->enSlowStat, playerChar.playerSpeedEffect, battleEn->enAgi, simpleAgility) == true) {
+                int damageDelt = (simpleAttack - battleEn->enDef);
+                playerFightResult += "You hit " + battleEn->enName + " for " + to_string(damageDelt) + " damage!";
                 battleEn->enHP -= damageDelt;
                 if (battleEn->enHP < 0) {
                     battleEn->enHP = 0;
                 }
             }
-            else {
-                if (playerChar.pHit(battleEn->enSlowStat, playerChar.playerSpeedEffect, battleEn->enAgi, simpleAgility) == false) {
-                    playerFightResult += "Missed!";
-                }
+        }
+        break;
+    case 2:
+        playerFightResult = "ERR Something Went wrong. Magic not done";
+        break;
+    case 3:
+        playerFightResult += itemUseTestMessage;
+        break;
+    default:
+        playerFightResult = "ERR Something Went wrong";
+    }
+    if (enFirst == true) {
+        fightingResult += (enResult + "\n");
+        if (playerChar.pHP <= 0) {
+            fightingResult += "You blacked out!";
+            lostBattle = true;
+        } else {
+            fightingResult += playerFightResult;
+            if (battleEn->enHP <= 0) {
+                fightingResult += ("\n" + battleEn->enName + " was defeated!");
+                playerWon = true;
             }
-            
         }
     }
-    
-
+    else {
+        fightingResult += playerFightResult;
+        if (battleEn->enHP <= 0) {
+            fightingResult += ("\n" + battleEn->enName + " was defeated!");
+            playerWon = true;
+        } else {
+            fightingResult += ("\n" + enResult);
+            if (playerChar.pHP <= 0) {
+                fightingResult += "You blacked out!";
+                lostBattle = true;
+            }
+        }
+    }
+    fightText->SetLabelText(fightingResult);
+    if (playerWon == true) {
+        fightBox->Set(fightOverMenu);
+        inBattle = false;
+        GetSizer()->Layout(); // Update the layout
+        playerChar.pGold += battleEn->enGold;
+        playerChar.pExp += battleEn->enEXP;
+    }
 }
 void MainFrame::battleStart() {
     inBattle = true;

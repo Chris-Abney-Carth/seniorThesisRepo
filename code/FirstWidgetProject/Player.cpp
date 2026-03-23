@@ -174,7 +174,7 @@ bool Player::pHit(bool enSlowStat, bool pSlowStat, int enAgi, int pAgil) {
 
     int hitValue = getRandom(1, 100);
 
-    if (hitValue <= chance) {
+    if (hitValue >= chance) {
         return true;
     }
     else {
