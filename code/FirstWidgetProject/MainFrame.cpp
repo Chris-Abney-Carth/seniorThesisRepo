@@ -68,6 +68,9 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     choiceMenuFight.Add("Inventory");
     choiceMenuFight.Add("Run");
 
+    fightOverMenu.Add("Continue");
+    fightOverMenu.Add("Go Back");
+
 	startPanel = new wxPanel(this, ID_PANEL_A);
 	startPanel->SetBackgroundColour(*wxBLACK);
 
@@ -909,6 +912,11 @@ void MainFrame::saveFileChosen(wxCommandEvent& evt) {
 
 }
 void MainFrame::choiceBoxSelect(wxKeyEvent& evt) {
+    //0 is menu
+    //1 is castle in scene 1. 1 is save in scene 2
+    //2 is shop in scene 1, and is town square in scene 2
+    //3 is only in scene 1, and is the fight section.
+    //Now work on the field.
     if (evt.GetKeyCode() == WXK_RETURN) {
         int choiceSelected = infoBox->GetSelection();
         if (choiceSelected != wxNOT_FOUND) {
@@ -923,8 +931,8 @@ void MainFrame::choiceBoxSelect(wxKeyEvent& evt) {
             }
             if (choiceSelected == 1) {
                 if (sceneCurrent == 1) {
-                    infoBox->Set(choiceCastle);
                     infoBox->Deselect(choiceSelected);
+                    infoBox->Set(choiceCastle);
                     choiceSelected = -1;
                     if (playerChar.pStoryFlag == 1) {
                         
@@ -958,6 +966,10 @@ void MainFrame::choiceBoxSelect(wxKeyEvent& evt) {
             if (choiceSelected == 3) {
                 if (sceneCurrent == 1) {
                     wxLogStatus("Not done yet!");
+                    choicePanel->Hide();
+                    fightPanel->Show();
+                    battleStart();
+                    GetSizer()->Layout();
                 }
                 if (sceneCurrent == 2) {
                     wxLogStatus("How did you select this?");
@@ -1031,64 +1043,73 @@ void MainFrame::itemSelect(wxListEvent& evt) {
 void MainFrame::useItem(wxCommandEvent& evt) {
     if (choiceID != -1) {
         if (pItems[choiceID]->type == 0) {
-            if (pItems[choiceID]->equiped == false) {
-                if (pItems[choiceID]->equipType == 0) {
-                    if (playerChar.pWeaponEquiped == false) {
-                        playerChar.pWeaponEquiped = true;
+            if (inBattle == false) {
+                if (pItems[choiceID]->equiped == false) {
+                    if (pItems[choiceID]->equipType == 0) {
+                        if (playerChar.pWeaponEquiped == false) {
+                            playerChar.pWeaponEquiped = true;
+                        }
+                        playerChar.pWeaponId = pItems[choiceID]->itemId;
                     }
-                    playerChar.pWeaponId = pItems[choiceID]->itemId;
-                }
-                if (pItems[choiceID]->equipType == 1) {
-                    if (playerChar.pBodyEquiped == false) {
-                        playerChar.pBodyEquiped = true;
+                    if (pItems[choiceID]->equipType == 1) {
+                        if (playerChar.pBodyEquiped == false) {
+                            playerChar.pBodyEquiped = true;
+                        }
+                        playerChar.pBodyId = pItems[choiceID]->itemId;
                     }
-                    playerChar.pBodyId = pItems[choiceID]->itemId;
-                }
-                if (pItems[choiceID]->equipType == 2) {
-                    if (playerChar.pAccEquiped == false) {
-                        playerChar.pAccEquiped = true;
+                    if (pItems[choiceID]->equipType == 2) {
+                        if (playerChar.pAccEquiped == false) {
+                            playerChar.pAccEquiped = true;
+                        }
+                        playerChar.pAccId = pItems[choiceID]->itemId;
                     }
-                    playerChar.pAccId = pItems[choiceID]->itemId;
-                }
-                if (pItems[choiceID]->equipType == 3) {
-                    if (playerChar.pMiscEquiped == false) {
-                        playerChar.pMiscEquiped = true;
+                    if (pItems[choiceID]->equipType == 3) {
+                        if (playerChar.pMiscEquiped == false) {
+                            playerChar.pMiscEquiped = true;
+                        }
+                        playerChar.pMiscId = pItems[choiceID]->itemId;
                     }
-                    playerChar.pMiscId = pItems[choiceID]->itemId;
+                    pItems[choiceID]->equiped = true;
+                    inventroyMessage = "Equipped " + pItems[choiceID]->name;
                 }
-                pItems[choiceID]->equiped = true;
-                inventroyMessage = "Equipped " + pItems[choiceID]->name;
+                else {
+                    if (pItems[choiceID]->equipType == 0) {
+                        if (playerChar.pWeaponEquiped == true) {
+                            playerChar.pWeaponEquiped = false;
+                        }
+                        playerChar.pWeaponId = 0;
+                    }
+                    if (pItems[choiceID]->equipType == 1) {
+                        if (playerChar.pBodyEquiped == true) {
+                            playerChar.pBodyEquiped = false;
+                        }
+                        playerChar.pBodyId = 0;
+                    }
+                    if (pItems[choiceID]->equipType == 2) {
+                        if (playerChar.pAccEquiped == true) {
+                            playerChar.pAccEquiped = false;
+                        }
+                        playerChar.pAccId = 0;
+                    }
+                    if (pItems[choiceID]->equipType == 3) {
+                        if (playerChar.pMiscEquiped == true) {
+                            playerChar.pMiscEquiped = false;
+                        }
+                        playerChar.pMiscId = 0;
+                    }
+                    pItems[choiceID]->equiped = false;
+                    inventroyMessage = "Unequipped " + pItems[choiceID]->name;
+                }
             }
-            else {
-                if (pItems[choiceID]->equipType == 0) {
-                    if (playerChar.pWeaponEquiped == true) {
-                        playerChar.pWeaponEquiped = false;
-                    }
-                    playerChar.pWeaponId = 0;
-                }
-                if (pItems[choiceID]->equipType == 1) {
-                    if (playerChar.pBodyEquiped == true) {
-                        playerChar.pBodyEquiped = false;
-                    }
-                    playerChar.pBodyId = 0;
-                }
-                if (pItems[choiceID]->equipType == 2) {
-                    if (playerChar.pAccEquiped == true) {
-                        playerChar.pAccEquiped = false;
-                    }
-                    playerChar.pAccId = 0;
-                }
-                if (pItems[choiceID]->equipType == 3) {
-                    if (playerChar.pMiscEquiped == true) {
-                        playerChar.pMiscEquiped = false;
-                    }
-                    playerChar.pMiscId = 0;
-                }
-                pItems[choiceID]->equiped = false;
-                inventroyMessage = "Unequipped " + pItems[choiceID]->name;
+            else if (inBattle == true) {
+                inventroyMessage = "Now is not the time for that!";
             }
         }
         else if (pItems[choiceID]->type == 1) {
+            if (inBattle == true) {
+                usedItem = true;
+                usedID = choiceID;
+            }
             bool hpMaxed = false;
             bool mpMaxed = false;
             bool noHPHeal = false;
@@ -1151,19 +1172,28 @@ void MainFrame::useItem(wxCommandEvent& evt) {
                     inventroyMessage = "You don't feel anyhing...";
                 }
                 else if (noHPHeal == true && noMPHeal == false) {
-                    inventroyMessage = "Revocered " + mpHealed + "MP!";
+                    inventroyMessage = "Recovered " + mpHealed + "MP!";
                 }
                 else if (noHPHeal == false && noMPHeal == true) {
-                    inventroyMessage = "Revocered " + hpHealed + "HP!";
+                    inventroyMessage = "Recovered " + hpHealed + "HP!";
                 }
                 else if (noHPHeal == false && noMPHeal == false) {
-                    inventroyMessage = "Revocered " + hpHealed + "HP! Revocered " + mpHealed + "MP!";
+                    inventroyMessage = "Recovered " + hpHealed + "HP! Recovered " + mpHealed + "MP!";
                 }
 
             }
             pItems.erase(pItems.begin() + choiceID);
             choiceID = -1;
             
+        }
+        if (inBattle == true && usedItem == true) {
+            inventoryPanel->Hide();
+            fightPanel->Show();
+            GetSizer()->Layout(); // Update the layout
+            //fightText->SetLabelText(inventroyMessage);
+            
+            playerbattleChoice = 2;
+            playerFightReady = true;
         }
         describeText->SetLabelText(inventroyMessage);
         populateInventory();
@@ -1176,36 +1206,74 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
     //1 = magic
     //2 = inventory
     //3 = run
+    //Second Scene is for after fight
     if (evt.GetKeyCode() == WXK_RETURN) {
         int choiceSelected = fightBox->GetSelection();
         if (choiceSelected != wxNOT_FOUND) {
             wxString holderStr = wxString::Format("Choice Selected: %d", choiceSelected);
             wxLogStatus(holderStr);
             if (choiceSelected == 0) {
-                wxLogStatus("Not Done");
-                playerbattleChoice = 0;
-                playerFightReady = true;
-
+                if (inBattle == true) {
+                    wxLogStatus("Not Done");
+                    playerbattleChoice = 0;
+                    playerFightReady = true;
+                }
+                else if (inBattle == false) {
+                    
+                    fightBox->Set(choiceMenuFight);
+                    fightBox->Deselect(choiceSelected);
+                    choiceSelected = -1;
+                    battleStart();
+                }
             }
             if (choiceSelected == 1) {
-                wxLogStatus("Not Done");
-                fightText->SetLabelText("Not done!");
+                if (inBattle == true) {
+                    wxLogStatus("Not Done");
+                    playerbattleChoice = 1;
+                    playerFightReady = true;
+                }
+                else if (inBattle == false) {
+                    fightPanel->Hide();
+                    choicePanel->Show();
+                    fightBox->Deselect(choiceSelected);
+                    fightBox->Set(choiceMenuFight);
+                    choiceSelected = -1;
+                    GetSizer()->Layout(); // Update the layout
+                }
             }
             if (choiceSelected == 2) {
-                wxLogStatus("Not Done");
-                fightText->SetLabelText("Not done!");
+                if (inBattle == true) {
+                    wxLogStatus("Not Done");
+                    populateInventory();
+                    fightPanel->Hide();
+                    inventoryPanel->Show();
+                    GetSizer()->Layout(); // Update the layout
+
+                }
+                else { 
+                    wxLogStatus("Error"); 
+                }
             }
             if (choiceSelected == 3) {
-                fightText->SetLabelText("You ran away!");
-                fightPanel->Hide();
-                menuPanel->Show();
-                GetSizer()->Layout(); // Update the layout
-                playerbattleChoice = 3;
-                playerFightReady = true;
+                if (inBattle == true) {
+                    playerbattleChoice = 3;
+                    playerFightReady = true;
+                    fightText->SetLabelText("You ran away!");
+                    fightBox->Deselect(choiceSelected);
+                    fightBox->Set(fightOverMenu);
+                    choiceSelected = -1;
+                    inBattle = false;
+                    
+                } 
+                else {
+                    wxLogStatus("Error");
+                }
             }
-
+            
         }
-
+        if (playerFightReady == true) {
+            battleTime(playerbattleChoice);
+        }
     }
     else {
         evt.Skip();
@@ -1225,7 +1293,7 @@ void MainFrame::exitInventory(wxCommandEvent& evt) {
         wxLogStatus("In battle");
         //Temp code. REMEBER TO REMOVE
         inventoryPanel->Hide();
-        menuPanel->Show();
+        fightPanel->Show();
         GetSizer()->Layout(); // Update the layout
     }
 }
@@ -1235,10 +1303,35 @@ void MainFrame::exitStats(wxCommandEvent& evt) {
     GetSizer()->Layout(); // Update the layout
 }
 void MainFrame::battleTime(int battleChoice) {
-    bool pTurn = false;
+    wxString fightingResult = "";
+    wxString playerFightResult = "";
+    wxString enResult = "It stood there...";
+    if (simpleSpeed > battleEn->enSpe) {
+        switch (battleChoice) {
+        case 0:
+            playerFightResult = "You swing at %s!\n", battleEn->enName;
+            if (playerChar.pCrit() == true) {
+                int damageDelt = (4 * simpleAttack - battleEn->enDef);
+                playerFightResult += "SMASH! You hit %s for %d damage!", battleEn->enName, damageDelt;
+                battleEn->enHP -= damageDelt;
+                if (battleEn->enHP < 0) {
+                    battleEn->enHP = 0;
+                }
+            }
+            else {
+                if (playerChar.pHit(battleEn->enSlowStat, playerChar.playerSpeedEffect, battleEn->enAgi, simpleAgility) == false) {
+                    playerFightResult += "Missed!";
+                }
+            }
+            
+        }
+    }
+    
+
+}
+void MainFrame::battleStart() {
     inBattle = true;
     int ranEn = getRandom(0, (numOEn - 1));
-    Enemy* battleEn = eLookUP[0];
+    battleEn = eLookUP[0];
     fightText->SetLabelText("An Enemy Approaches!");
-
 }

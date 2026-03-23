@@ -42,12 +42,16 @@ public:
 	int playerbattleChoice = 0;
 	bool playerFightReady = false;
 	bool enemyFightReady = false;
+	bool usedItem = false;
+	int usedID = 0;
 	//0 = attack
 	//Simple player stats are states that are used for fights or stat screen. They are not the base value for some stats.
 	wxArrayString choiceOptions;
 	wxArrayString choiceMenuOverworld;
 	wxArrayString choiceCastle;
 	wxArrayString choiceMenuFight;
+	wxArrayString fightOverMenu;
+	Enemy* battleEn;
 private:
 	//Start screen
 	wxPanel* startPanel;
@@ -100,6 +104,7 @@ private:
 	void useItem(wxCommandEvent& evt);
 	void fightChoiceSelect(wxKeyEvent& evt);
 	void battleTime(int battleChoice);
+	void battleStart();
 
 };
 

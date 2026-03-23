@@ -38,11 +38,12 @@ public:
 	int pBodyId = 0;
 	int pAccId = 0;
 	int pMiscId = 0;
-private:
 	int getRandom(int rMin, int rMax);
 	int statBoost(int gRate, int level, int stat, int rand);
 	void levelUP();
 	bool pHit(bool enSlowStat, bool pSlowStat, int enAgi, int pAgil);
 	bool pCrit();
+private:
+	
 };
 
