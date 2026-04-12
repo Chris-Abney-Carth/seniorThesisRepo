@@ -1238,7 +1238,7 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
                 }
                 else {
                     if (inBattle == true) {
-                        wxLogStatus("Not Done");
+                        wxLogStatus("Attacked");
                         playerbattleChoice = 1;
                         playerFightReady = true;
                     }
@@ -1249,6 +1249,9 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
                         choiceSelected = -1;
                         battleEn->enHP = battleEn->enHPM;
                         battleStart();
+                        fightBox->Deselect(choiceSelected);
+                        choiceSelected = -1;
+                        wxLogStatus("B Start");
                     }
                 }
                 
@@ -1269,6 +1272,7 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
                         choicePanel->Show();
                         fightBox->Deselect(choiceSelected);
                         fightBox->Set(choiceMenuFight);
+                        playerFightReady = false;
                         choiceSelected = -1;
                         GetSizer()->Layout(); // Update the layout
                     }
@@ -1292,7 +1296,7 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
                 if (inBattle == true) {
                     playerbattleChoice = 4;
                     playerFightReady = false;
-                    fightText->SetLabelText("You ran away!");
+                    fightText->SetLabelText("You \nran \n\n\naway!");
                     fightBox->Deselect(choiceSelected);
                     fightBox->Set(fightOverMenu);
                     GetSizer()->Layout(); // Update the layout
@@ -1428,4 +1432,7 @@ void MainFrame::battleStart() {
     int ranEn = getRandom(0, (numOEn - 1));
     battleEn = eLookUP[0];
     fightText->SetLabelText("An Enemy Approaches!");
+    playerFightReady = false;
+    battleEn->enHP = battleEn->enHPM;
+
 }
