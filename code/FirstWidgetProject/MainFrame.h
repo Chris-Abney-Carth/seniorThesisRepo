@@ -48,6 +48,9 @@ public:
 	bool enemyFightReady = false;
 	bool usedItem = false;
 	int usedID = 0;
+	int magicChoice = 0;
+	bool usingMagic = false;
+	int shieldTimer = 0;
 	//0 = attack
 	//Simple player stats are states that are used for fights or stat screen. They are not the base value for some stats.
 	wxArrayString choiceOptions;
@@ -57,6 +60,7 @@ public:
 	wxArrayString fightOverMenu;
 	wxArrayString battleLostMenu;
 	wxArrayString battelWonMenu;
+	wxArrayString fightMagicMenu;
 	Enemy* battleEn;
 private:
 	//Start screen

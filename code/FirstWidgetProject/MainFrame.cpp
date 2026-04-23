@@ -68,6 +68,9 @@ MainFrame::MainFrame(const wxString& title): wxFrame(nullptr, wxID_ANY, title) {
     choiceMenuFight.Add("Inventory");
     choiceMenuFight.Add("Run");
 
+    fightMagicMenu.Add("Shild - 0 MP");
+    fightMagicMenu.Add("Return");
+
     fightOverMenu.Add("Continue");
     fightOverMenu.Add("Go Back");
 
@@ -1228,6 +1231,7 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
             wxLogStatus(holderStr);
             if (choiceSelected == 0) {
                 if (lostBattle == true){
+
                     fightPanel->Hide();
                     choicePanel->Show();
                     fightBox->Deselect(choiceSelected);
@@ -1238,9 +1242,21 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
                 }
                 else {
                     if (inBattle == true) {
-                        wxLogStatus("Attacked");
-                        playerbattleChoice = 1;
-                        playerFightReady = true;
+                        if (usingMagic == false) {
+                            wxLogStatus("Attacked");
+                            playerbattleChoice = 1;
+                            playerFightReady = true;
+                        }
+                        else if (usingMagic == true) {
+                            magicChoice = 1;
+                            usingMagic = false;
+                            playerFightReady = true;
+                            fightBox->Set(choiceMenuFight);
+                            fightBox->Deselect(choiceSelected);
+                            choiceSelected = -1;
+                            GetSizer()->Layout();
+                        }
+                       
                     }
                     else if (inBattle == false) {
                         playerWon = false;
@@ -1262,9 +1278,27 @@ void MainFrame::fightChoiceSelect(wxKeyEvent& evt) {
                 }
                 else {
                     if (inBattle == true) {
-                        wxLogStatus("Not Done");
-                        playerbattleChoice = 2;
-                        playerFightReady = false;
+                        if (usingMagic == false) {
+                            wxLogStatus("Not Done");
+                            playerbattleChoice = 2;
+                            playerFightReady = false;
+                            usingMagic = true;
+                            fightBox->Set(fightMagicMenu);
+                            fightBox->Deselect(choiceSelected);
+                            choiceSelected = -1;
+                            GetSizer()->Layout();
+                        }
+                        else if (usingMagic == true) {
+                            magicChoice = 0;
+                            usingMagic = false;
+                            playerbattleChoice = 0;
+                            playerFightReady = false;
+                            fightBox->Set(choiceMenuFight);
+                            fightBox->Deselect(choiceSelected);
+                            choiceSelected = -1;
+                            GetSizer()->Layout();
+                        }
+                        
                     }
                     else if (inBattle == false) {
                         playerWon = false;
@@ -1384,7 +1418,22 @@ void MainFrame::battleTime(int battleChoice) {
         }
         break;
     case 2:
-        playerFightResult = "ERR Something Went wrong. Magic not done";
+
+        playerFightResult = "You casted Shield!";
+        switch (magicChoice) {
+            case 0:
+                playerFightResult = "Err, somthing went wrong!";
+                break;
+            case 1:
+                playerFightResult = "You cast shield! Defence increased by 5 for 5 turns!";
+                simpleDefense += 5;
+                shieldTimer = 5;
+                break;
+            default:
+                playerFightResult = "Err, somthing went wrong!";
+                break;
+        }
+           
         break;
     case 3:
         playerFightResult += itemUseTestMessage;
@@ -1396,6 +1445,9 @@ void MainFrame::battleTime(int battleChoice) {
         fightingResult += (enResult + "\n");
         if (playerChar.pHP <= 0) {
             fightingResult += "You blacked out!";
+            magicChoice = 0;
+            simpleDefense -= 5;
+            shieldTimer = 0;
             lostBattle = true;
         } else {
             fightingResult += playerFightResult;
@@ -1418,8 +1470,18 @@ void MainFrame::battleTime(int battleChoice) {
             }
         }
     }
+    if (shieldTimer > 0) {
+        shieldTimer -= 1;
+        if (shieldTimer == 0) {
+            simpleDefense -= 5;
+        }
+    }
+    magicChoice = 0;
     fightText->SetLabelText(fightingResult);
     if (playerWon == true) {
+        magicChoice = 0;
+        simpleDefense -= 5;
+        shieldTimer = 0;
         fightBox->Set(fightOverMenu);
         inBattle = false;
         GetSizer()->Layout(); // Update the layout
