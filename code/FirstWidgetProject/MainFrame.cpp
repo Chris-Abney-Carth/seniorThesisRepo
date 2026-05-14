@@ -1414,13 +1414,25 @@ void MainFrame::battleTime(int battleChoice) {
             }
             else if (attChoose == 1) {
                 enResult = "It attacked!";
-                //bool didHit = battleEn->hit(simpleAgility, )
+                bool didHit = battleEn->hit(simpleAgility, playerChar.playerSpeedEffect);
+                if (didHit == false) {
+                    enResult += " But it Missed!";
+                }
+                else if (didHit == true) {
+                    int entdameage = battleEn->atk1(simpleDefense, simpleAgility, playerChar.playerSpeedEffect);
+                    if (entdameage <= 0) {
+                        enResult += " But it could not get though armor!";
+                    }
+                    else {
+                        enResult += " Enemy hit for " + to_string(entdameage) + " damage!";
+                    }
+                }
             }
             else if (attChoose == 2) {
-                enResult = "Casting fire magic!";
+                enResult = "Casting fire magic! But it failed!";
             }
             else if (attChoose == 3) {
-                enResult = "Casting ice magic!";
+                enResult = "Casting ice magic! But it failed!";
             }
 
         }
