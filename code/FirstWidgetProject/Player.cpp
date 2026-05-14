@@ -152,7 +152,7 @@ void Player::levelUP() {
     if ((pLevel + 1) <= 10) {
         witRand = 5;
     }
-    int witBoost = statBoost(6, pLevel, pWits, gutRand);
+    int witBoost = statBoost(6, pLevel, pWits, witRand);
     pWits += witBoost;
     cout << "Wits went up by " << witBoost << endl;
 

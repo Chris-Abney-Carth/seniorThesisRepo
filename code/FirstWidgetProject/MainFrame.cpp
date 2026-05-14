@@ -1381,8 +1381,8 @@ void MainFrame::battleTime(int battleChoice) {
     wxLogStatus("Used %d",battleChoice);
     //case 1 will be attack, 2 is magic, 3 is item
     wxString fightingResult = "";
-    wxString playerFightResult = "";
-    wxString enResult = "It stood there...";
+    wxString playerFightResult = "It stood there...";
+    wxString enResult = "";
     bool enFirst = false;
     if (simpleSpeed >= battleEn->enSpe) {
         enFirst = false;
@@ -1391,6 +1391,41 @@ void MainFrame::battleTime(int battleChoice) {
         //en attack, not implimented yet.
         enFirst = true;
     }
+    //enemy attacks
+    bool useThis = false;
+    if (useThis == true) {
+        int enAttackChoiceRange = 0;
+        if (battleEn->useAtkB == true) {
+            enAttackChoiceRange += 1;
+        }
+        if (battleEn->useFire == true) {
+            enAttackChoiceRange += 1;
+        }
+        if (battleEn->useIce == true) {
+            enAttackChoiceRange += 1;
+        }
+        if (enAttackChoiceRange == 0) {
+            enResult = "It stood there...";
+        }
+        else {
+            int attChoose = getRandom(0, enAttackChoiceRange);
+            if (attChoose == 0) {
+                enResult = "It stood there...";
+            }
+            else if (attChoose == 1) {
+                enResult = "It attacked!";
+                //bool didHit = battleEn->hit(simpleAgility, )
+            }
+            else if (attChoose == 2) {
+                enResult = "Casting fire magic!";
+            }
+            else if (attChoose == 3) {
+                enResult = "Casting ice magic!";
+            }
+
+        }
+    }
+    
     switch (battleChoice) {
     case 1:
         wxLogStatus("Simple attack is%d", simpleAttack);

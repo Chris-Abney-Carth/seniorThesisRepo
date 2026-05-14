@@ -28,8 +28,6 @@ public:
     bool useAtkB;
     bool useIce;
     bool useFire;
-
-private:
     bool hit(int pAgil, bool pSlowStat);
     int atk1(int pDef, int pAgilt, bool pSlowStat);
     void atk2();
@@ -37,5 +35,7 @@ private:
     int magFire(int pDef, int pAgil, int pSpeed, int pWit, bool pSlowStat);
     void mag3();
     void defeat();
+private:
+    
 };
 #endif
